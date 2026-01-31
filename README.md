@@ -1,22 +1,22 @@
-# 🚀 Autopilot CLI
+# 🚀 Autopilot
 
 <div align="center">
 
-![Autopilot Logo](https://img.shields.io/badge/Autopilot-CLI-blue?style=for-the-badge&logo=git&logoColor=white)
+![Autopilot Logo](https://img.shields.io/badge/Autopilot-blue?style=for-the-badge&logo=git&logoColor=white)
 
 **Intelligent Git automation that commits and pushes your code, so you can focus on building.**
 
-[![npm version](https://img.shields.io/npm/v/autopilot-cli?style=flat-square&color=success)](https://www.npmjs.com/package/autopilot-cli)
+[![npm version](https://img.shields.io/npm/v/@traisetech/autopilot?style=flat-square&color=success)](https://www.npmjs.com/package/@traisetech/autopilot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen?style=flat-square)](https://nodejs.org)
-[![Downloads](https://img.shields.io/npm/dm/autopilot-cli?style=flat-square&color=blue)](https://www.npmjs.com/package/autopilot-cli)
-[![GitHub Stars](https://img.shields.io/github/stars/PraiseTechzw/autopilot-cli?style=flat-square&color=gold)](https://github.com/PraiseTechzw/autopilot-cli/stargazers)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/PraiseTechzw/autopilot-cli/ci.yml?style=flat-square)](https://github.com/PraiseTechzw/autopilot-cli/actions)
+[![Downloads](https://img.shields.io/npm/dm/@traisetech/autopilot?style=flat-square&color=blue)](https://www.npmjs.com/package/@traisetech/autopilot)
+[![GitHub Stars](https://img.shields.io/github/stars/PraiseTechzw/autopilot?style=flat-square&color=gold)](https://github.com/PraiseTechzw/autopilot/stargazers)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/PraiseTechzw/autopilot/ci.yml?style=flat-square)](https://github.com/PraiseTechzw/autopilot/actions)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 **Built by [Praise Masunga](https://github.com/PraiseTechzw) (PraiseTechzw)**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Configuration](#-configuration) • [Commands](#-commands) • [Safety](#-safety-features)
+[Features](#-features) • [Installation](#-installation) • [Quick Start](#-quick-start) • [Configuration](#-configuration) • [Commands](#-commands)
 
 </div>
 
@@ -26,8 +26,8 @@
 
 - [Why Autopilot?](#-why-autopilot)
 - [Features](#-features)
-- [Quick Start](#-quick-start)
 - [Installation](#-installation)
+- [Quick Start](#-quick-start)
 - [Commands](#-commands)
 - [Configuration](#-configuration)
 - [Safety Features](#-safety-features)
@@ -38,6 +38,8 @@
 ---
 
 ## 🎯 Why Autopilot?
+
+Autopilot is designed for developers who want to stay in the flow. It solves manual Git workflow fatigue by handling the repetitive cycle of staging, committing, and pushing changes, allowing you to focus entirely on writing code.
 
 <table>
 <tr>
@@ -90,29 +92,44 @@ autopilot start
 
 ---
 
-## 🚀 Quick Start
+## ⬇️ Installation
 
-### Installation
+Install Autopilot globally using npm:
 
 ```bash
-# Install globally via npm
-npm install -g autopilot-cli
+npm install -g @traisetech/autopilot
 ```
 
-### Usage
+---
+
+## 🚀 Quick Start
+
+### 1. Initialize
+Navigate to your Git repository and initialize Autopilot:
 
 ```bash
-# 1. Initialize in your project
 cd my-project
 autopilot init
+```
 
-# 2. Start the background watcher
+### 2. Start Watching
+Start the background daemon to begin monitoring your files:
+
+```bash
 autopilot start
+```
 
-# 3. Check status
+### 3. Check Status
+Verify that Autopilot is running:
+
+```bash
 autopilot status
+```
 
-# 4. Stop when done
+### 4. Stop
+When you're done for the day:
+
+```bash
 autopilot stop
 ```
 
@@ -133,7 +150,7 @@ autopilot stop
 
 ## ⚙️ Configuration
 
-Autopilot uses a `.autopilotrc.json` file for configuration.
+Autopilot uses a `.autopilotrc.json` file for configuration. It is created automatically when you run `autopilot init`.
 
 ```json
 {
@@ -206,5 +223,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
-  <b>Built with ❤️ by <a href="https://github.com/PraiseTechzw">Praise Masunga (PraiseTechzw)</a></b>
+  <b>Built by <a href="https://github.com/PraiseTechzw">Praise Masunga (PraiseTechzw)</a></b>
 </div>
