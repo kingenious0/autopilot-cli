@@ -32,12 +32,11 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "node bin/autopilot.js",
-    "lint": "echo \"No lint configured\"",
     "test": "node --test",
-    "verify": "node bin/autopilot.js doctor",
-    "release:patch": "npm test && echo \"⚠️  Ensure CHANGELOG.md is updated\" && npm version patch && git push --follow-tags",
-    "release:minor": "npm test && echo \"⚠️  Ensure CHANGELOG.md is updated\" && npm version minor && git push --follow-tags",
-    "release:major": "npm test && echo \"⚠️  Ensure CHANGELOG.md is updated\" && npm version major && git push --follow-tags"
+    "lint": "node -c bin/autopilot.js && node -c src/index.js",
+    "verify": "npm run test && npm run lint && node bin/autopilot.js --help",
+    "prepublishOnly": "npm run verify",
+    "release:patch": "npm run verify && npm version patch && git push --follow-tags && echo \"\n🚀 Ready to publish! Run: npm publish --access public\""
   },
   "engines": {
     "node": ">=18.0.0"

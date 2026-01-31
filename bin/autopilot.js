@@ -1,12 +1,32 @@
 #!/usr/bin/env node
 
 const { Command } = require('commander');
-const { initRepo } = require('../src/commands/init');
-const { startWatcher } = require('../src/commands/start');
-const { stopWatcher } = require('../src/commands/stop');
-const { statusWatcher } = require('../src/commands/status');
-const { doctor } = require('../src/commands/doctor');
+const initRepo = require('../src/commands/init');
+const startWatcher = require('../src/commands/start');
+const stopWatcher = require('../src/commands/stop');
+const statusWatcher = require('../src/commands/status');
+const doctor = require('../src/commands/doctor');
 const pkg = require('../package.json');
+const logger = require('../src/utils/logger');
+
+// Validate command handlers
+const commands = {
+  init: initRepo,
+  start: startWatcher,
+  stop: stopWatcher,
+  status: statusWatcher,
+  doctor: doctor
+};
+
+// Runtime assertion to prevent wiring errors
+Object.entries(commands).forEach(([name, handler]) => {
+  if (typeof handler !== 'function') {
+    console.error(`\n❌ FATAL ERROR: Command handler for '${name}' is not a function.`);
+    console.error(`Received: ${typeof handler}`);
+    console.error('Please report this issue to the maintainer.\n');
+    process.exit(1);
+  }
+});
 
 const program = new Command();
 

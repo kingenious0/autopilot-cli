@@ -91,6 +91,16 @@ class Watcher {
       logger.success(`Autopilot is watching ${this.repoPath}`);
       logger.info(`Logs: ${this.logFilePath}`);
       
+      // Test Mode Support
+      if (process.env.AUTOPILOT_TEST_MODE) {
+        logger.warn('TEST MODE: Running in dry-run mode for 3 seconds...');
+        setTimeout(async () => {
+          logger.info('TEST MODE: Auto-stopping watcher...');
+          await this.stop();
+          process.exit(0);
+        }, 3000);
+      }
+      
     } catch (error) {
       logger.error(`Failed to start watcher: ${error.message}`);
       this.logVerbose(`Start error: ${error.stack}`);

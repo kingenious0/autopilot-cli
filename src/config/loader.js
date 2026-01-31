@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const logger = require('../utils/logger');
-const defaults = require('./defaults');
+const { DEFAULT_CONFIG } = require('./defaults');
 const { getConfigPath } = require('../utils/paths');
 
 const loadConfig = async (repoPath) => {
@@ -10,12 +10,12 @@ const loadConfig = async (repoPath) => {
     if (await fs.pathExists(configPath)) {
       const config = await fs.readJson(configPath);
       logger.debug(`Loaded config from ${configPath}`);
-      return { ...defaults, ...config };
+      return { ...DEFAULT_CONFIG, ...config };
     }
   } catch (error) {
     logger.warn(`Error loading config: ${error.message}`);
   }
-  return defaults;
+  return { ...DEFAULT_CONFIG };
 };
 
 const saveConfig = async (repoPath, config) => {
@@ -32,7 +32,7 @@ const createDefaultConfig = async (repoPath) => {
   const configPath = getConfigPath(repoPath);
   try {
     if (!(await fs.pathExists(configPath))) {
-      await fs.writeJson(configPath, defaults, { spaces: 2 });
+      await fs.writeJson(configPath, DEFAULT_CONFIG, { spaces: 2 });
       logger.success(`Created default config at ${configPath}`);
     }
   } catch (error) {

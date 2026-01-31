@@ -13,6 +13,16 @@ const logger = {
   },
 
   /**
+   * Log debug message (only visible if DEBUG env var is set)
+   * @param {string} message - Message to log
+   */
+  debug: (message) => {
+    if (process.env.DEBUG) {
+      console.log(`🔍 ${message}`);
+    }
+  },
+
+  /**
    * Log success message
    * @param {string} message - Message to log
    */
