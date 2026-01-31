@@ -1,55 +1,90 @@
-const path = require("path");
-const fs = require("fs-extra");
+/**
+ * Autopilot init command - Initialize repository configuration
+ * Built by Praise Masunga (PraiseTechzw)
+ */
 
-const DEFAULT_IGNORE = `node_modules/
-dist/
-build/
-.next/
-.env
-.env.*
-coverage/
-*.log
-.DS_Store
-`;
+const fs = require('fs-extra');
+const logger = require('../utils/logger');
+const { getConfigPath, getIgnorePath, getGitPath } = require('../utils/paths');
+const { DEFAULT_CONFIG, DEFAULT_IGNORE_PATTERNS } = require('../config/defaults');
 
-const DEFAULT_CONFIG = {
-  debounceSeconds: 20,
-  minSecondsBetweenCommits: 180,
-  autoPush: true,
-  blockBranches: ["main", "master"],
-  requireChecks: false,
-  checks: [],
-  commitMessageMode: "smart" // smart | simple
-};
-
-function findRepoRoot() {
-  const root = process.cwd();
-  if (!fs.existsSync(path.join(root, ".git"))) {
-    throw new Error("Not a git repo. Run this inside a repository folder.");
-  }
-  return root;
+/**
+ * Verify current directory is a git repository
+ * @param {string} repoPath - Path to check
+ * @returns {boolean} True if git repo
+ */
+function isGitRepo(repoPath) {
+  const gitPath = getGitPath(repoPath);
+  return fs.existsSync(gitPath);
 }
 
+/**
+ * Create .autopilotignore file with safe defaults
+ * @param {string} repoPath - Repository path
+ * @returns {Promise<boolean>} True if created, false if already exists
+ */
+async function createIgnoreFile(repoPath) {
+  const ignorePath = getIgnorePath(repoPath);
+  
+  if (fs.existsSync(ignorePath)) {
+    logger.info('.autopilotignore already exists');
+    return false;
+  }
+
+  await fs.writeFile(ignorePath, DEFAULT_IGNORE_PATTERNS, 'utf8');
+  logger.success('Created .autopilotignore');
+  return true;
+}
+
+/**
+ * Create .autopilotrc.json file with default configuration
+ * @param {string} repoPath - Repository path
+ * @returns {Promise<boolean>} True if created, false if already exists
+ */
+async function createConfigFile(repoPath) {
+  const configPath = getConfigPath(repoPath);
+  
+  if (fs.existsSync(configPath)) {
+    logger.info('.autopilotrc.json already exists');
+    return false;
+  }
+
+  await fs.writeJson(configPath, DEFAULT_CONFIG, { spaces: 2 });
+  logger.success('Created .autopilotrc.json');
+  return true;
+}
+
+/**
+ * Initialize Autopilot in current repository
+ */
 async function initRepo() {
-  const root = findRepoRoot();
-  const ignorePath = path.join(root, ".autopilotignore");
-  const configPath = path.join(root, ".autopilotrc.json");
+  try {
+    const repoPath = process.cwd();
 
-  if (!fs.existsSync(ignorePath)) {
-    await fs.writeFile(ignorePath, DEFAULT_IGNORE, "utf8");
-    console.log("✅ Created .autopilotignore");
-  } else {
-    console.log("ℹ️ .autopilotignore already exists");
+    logger.section('🚀 Autopilot Init - Built by Praise Masunga (PraiseTechzw)');
+
+    // Verify git repository
+    if (!isGitRepo(repoPath)) {
+      logger.error('Not a git repository. Please run this inside a git repo.');
+      process.exit(1);
+    }
+
+    logger.success('Git repository detected');
+
+    // Create files
+    await createIgnoreFile(repoPath);
+    await createConfigFile(repoPath);
+
+    logger.section('✨ Initialization Complete');
+    logger.info('Next steps:');
+    logger.info('  1. Review .autopilotrc.json to customize settings');
+    logger.info('  2. Review .autopilotignore to adjust ignore patterns');
+    logger.info('  3. Run "autopilot start" to begin watching');
+    
+  } catch (error) {
+    logger.error(`Initialization failed: ${error.message}`);
+    process.exit(1);
   }
-
-  if (!fs.existsSync(configPath)) {
-    await fs.writeJson(configPath, DEFAULT_CONFIG, { spaces: 2 });
-    console.log("✅ Created .autopilotrc.json");
-  } else {
-    console.log("ℹ️ .autopilotrc.json already exists");
-  }
-
-  console.log("Done. Next: autopilot start");
 }
 
-module.exports = { initRepo, findRepoRoot };
+module.exports = { initRepo };

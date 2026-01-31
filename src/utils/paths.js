@@ -1,41 +1,77 @@
+/**
+ * Path utilities for Autopilot
+ * Built by Praise Masunga (PraiseTechzw)
+ */
+
 const path = require('path');
 const os = require('os');
 const fs = require('fs-extra');
 
-const getConfigDir = () => {
-  const configDir = path.join(os.homedir(), '.autopilot');
-  return configDir;
-};
-
-const getStateFile = () => {
-  const configDir = getConfigDir();
-  return path.join(configDir, 'state.json');
-};
-
-const getPidFile = () => {
-  const configDir = getConfigDir();
-  return path.join(configDir, 'autopilot.pid');
-};
-
-const getLogFile = () => {
-  const configDir = getConfigDir();
-  return path.join(configDir, 'autopilot.log');
-};
-
-const ensureConfigDir = async () => {
-  const configDir = getConfigDir();
-  await fs.ensureDir(configDir);
-};
-
+/**
+ * Get path to config file in repository
+ * @param {string} repoPath - Repository path
+ * @returns {string} Config file path
+ */
 const getConfigPath = (repoPath) => {
-  return path.join(repoPath, '.autopilot.json');
+  return path.join(repoPath, '.autopilotrc.json');
+};
+
+/**
+ * Get path to ignore file in repository
+ * @param {string} repoPath - Repository path
+ * @returns {string} Ignore file path
+ */
+const getIgnorePath = (repoPath) => {
+  return path.join(repoPath, '.autopilotignore');
+};
+
+/**
+ * Get path to .git directory
+ * @param {string} repoPath - Repository path
+ * @returns {string} .git directory path
+ */
+const getGitPath = (repoPath) => {
+  return path.join(repoPath, '.git');
+};
+
+/**
+ * Get global config directory
+ * @returns {string} Config directory path
+ */
+const getConfigDir = () => {
+  return path.join(os.homedir(), '.autopilot');
+};
+
+/**
+ * Get PID file path
+ * @returns {string} PID file path
+ */
+const getPidFile = () => {
+  return path.join(getConfigDir(), 'autopilot.pid');
+};
+
+/**
+ * Get state file path
+ * @returns {string} State file path
+ */
+const getStateFile = () => {
+  return path.join(getConfigDir(), 'state.json');
+};
+
+/**
+ * Ensure config directory exists
+ * @returns {Promise<void>}
+ */
+const ensureConfigDir = async () => {
+  await fs.ensureDir(getConfigDir());
 };
 
 module.exports = {
-  getConfigDir,
-  getStateFile,
-  getPidFile,
-  getLogFile,
-  ensureConfigDir,
   getConfigPath,
+  getIgnorePath,
+  getGitPath,
+  getConfigDir,
+  getPidFile,
+  getStateFile,
+  ensureConfigDir,
 };

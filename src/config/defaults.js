@@ -1,22 +1,31 @@
-const defaults = {
-  commitMessage: 'autopilot: auto-commit',
-  autoPush: false,
-  ignore: [
-    'node_modules',
-    '.git',
-    '.gitignore',
-    '.env',
-    '.env.local',
-    '.env.*.local',
-    'dist',
-    'build',
-    'coverage',
-    '.cache',
-    '*.log',
-    '.DS_Store',
-    'Thumbs.db',
-  ],
-  debounceMs: 2000,
+/**
+ * Default configuration values for Autopilot
+ * Built by Praise Masunga (PraiseTechzw)
+ */
+
+const DEFAULT_CONFIG = {
+  debounceSeconds: 20,
+  minSecondsBetweenCommits: 180,
+  autoPush: true,
+  blockBranches: ['main', 'master'],
+  requireChecks: false,
+  checks: [],
+  commitMessageMode: 'smart', // smart | simple
 };
 
-module.exports = defaults;
+const DEFAULT_IGNORE_PATTERNS = [
+  'node_modules/',
+  'dist/',
+  'build/',
+  '.next/',
+  '.env',
+  '.env.*',
+  'coverage/',
+  '*.log',
+  '.DS_Store',
+].join('\n');
+
+module.exports = {
+  DEFAULT_CONFIG,
+  DEFAULT_IGNORE_PATTERNS,
+};
