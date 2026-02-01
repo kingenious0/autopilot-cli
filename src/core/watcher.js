@@ -247,9 +247,12 @@ class Watcher {
       
       // Generate message
       const changedFiles = statusObj.files;
-      const message = this.config?.commitMessageMode === 'simple' 
-        ? 'chore: auto-commit changes'
-        : generateCommitMessage(changedFiles);
+      let message = 'chore: auto-commit changes';
+
+      if (this.config?.commitMessageMode !== 'simple') {
+        const diff = await git.getDiff(this.repoPath, true); // Staged diff
+        message = generateCommitMessage(changedFiles, diff);
+      }
 
       await git.commit(this.repoPath, message);
       this.lastCommitAt = Date.now();

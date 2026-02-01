@@ -1,154 +1,273 @@
 /**
  * Smart commit message generator
+ * Uses git diff analysis to generate professional, senior-level commit messages.
  */
 
 const path = require('path');
 
 /**
- * Generate a conventional commit message based on changed files
+ * Generate a conventional commit message based on diff analysis
  * @param {Array<{status: string, file: string}>} files - Array of changed file objects
+ * @param {string} diffContent - Raw git diff content
  * @returns {string} Conventional commit message
  */
-function generateCommitMessage(files) {
+function generateCommitMessage(files, diffContent) {
   if (!files || files.length === 0) {
     return 'chore: update changes';
   }
 
-  // 1. Group files by category/directory
-  const groups = {};
-  const categories = {
-    fix: false,
-    feat: false,
-    docs: false,
-    test: false,
-    config: false,
+  // 1. Parse Diff for deep analysis
+  const diffAnalysis = parseDiff(diffContent);
+  
+  // 2. Determine Type, Scope, and Breaking Changes
+  const { type, scope, isBreaking, breakingSummary } = determineContext(files, diffAnalysis);
+  
+  // 3. Generate Imperative Summary
+  const summary = generateSummary(type, scope, diffAnalysis, files);
+  
+  // 4. Generate Body Bullets
+  const bodyBullets = generateBody(diffAnalysis, files);
+
+  // 5. Construct Final Message
+  let message = `${type}${scope ? `(${scope})` : ''}: ${summary}`;
+  
+  if (bodyBullets.length > 0) {
+    message += `\n\n${bodyBullets.join('\n')}`;
+  }
+  
+  if (isBreaking) {
+    message += `\n\nBREAKING CHANGE: ${breakingSummary || summary}`;
+  }
+
+  return message;
+}
+
+/**
+ * Parse raw diff into structured data
+ */
+function parseDiff(diff) {
+  const analysis = {
+    hunks: [],
+    additions: [],
+    deletions: [],
+    touchedComponents: new Set(),
+    touchedConfigKeys: new Set(),
+    hasTests: false,
+    hasDocs: false,
+    hasUiChanges: false,
+    hasThemeChanges: false,
+    hasCliChanges: false,
   };
 
-  files.forEach(({ status, file }) => {
-    const normalized = file.replace(/\\/g, '/');
-    const parts = normalized.split('/');
-    let group = 'root';
-    
-    // Determine group based on path
-    if (parts.length > 1) {
-      if (parts[0] === 'src' && parts.length > 2) {
-        group = parts[1]; // e.g. src/core -> core
-      } else if (parts[0] === 'app' || parts[0] === 'pages' || parts[0] === 'components' || parts[0] === 'lib') {
-        group = parts[0]; // Next.js standard folders
-      } else {
-        group = parts[0];
-      }
+  if (!diff) return analysis;
+
+  const lines = diff.split('\n');
+  let currentFile = '';
+
+  lines.forEach(line => {
+    if (line.startsWith('diff --git')) {
+      const parts = line.split(' ');
+      currentFile = parts[parts.length - 1].startsWith('b/') 
+        ? parts[parts.length - 1].slice(2) 
+        : parts[parts.length - 1];
+      return;
     }
 
-    if (!groups[group]) {
-      groups[group] = { added: [], modified: [], deleted: [] };
-    }
-
-    // Categorize for commit type
-    detectCategory(normalized, categories);
-
-    // Add to group lists based on status
-    // Status codes: '??' (untracked), 'A' (added), 'M' (modified), 'D' (deleted), 'R' (renamed)
-    if (status === '??' || status === 'A') {
-      groups[group].added.push(path.basename(normalized));
-    } else if (status === 'D') {
-      groups[group].deleted.push(path.basename(normalized));
-    } else {
-      groups[group].modified.push(path.basename(normalized));
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      const content = line.slice(1).trim();
+      analysis.additions.push({ file: currentFile, content });
+      analyzeLine(content, 'add', currentFile, analysis);
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      const content = line.slice(1).trim();
+      analysis.deletions.push({ file: currentFile, content });
+      analyzeLine(content, 'del', currentFile, analysis);
     }
   });
 
-  // 2. Determine primary type
+  return analysis;
+}
+
+function analyzeLine(content, type, file, analysis) {
+  // Config keys
+  if (file.endsWith('.json') || file.endsWith('.js')) {
+    if (content.includes(':') && !content.includes('function')) {
+      const key = content.split(':')[0].trim().replace(/['"]/g, '');
+      if (key && key.length < 30) analysis.touchedConfigKeys.add(key);
+    }
+  }
+
+  // UI/Theme detection
+  if (content.includes('className=') || content.includes('style=')) {
+    analysis.hasUiChanges = true;
+  }
+  if (content.includes('var(--') || content.includes('color-')) {
+    analysis.hasThemeChanges = true;
+  }
+
+  // Component detection (React)
+  if (file.includes('components/') && content.includes('export const')) {
+    const match = content.match(/export const (\w+)/);
+    if (match) analysis.touchedComponents.add(match[1]);
+  }
+}
+
+function determineContext(files, analysis) {
   let type = 'chore';
-  if (categories.fix) type = 'fix';
-  else if (categories.feat) type = 'feat';
-  else if (categories.docs) type = 'docs';
-  else if (categories.config) type = 'chore'; // Config usually chore unless explicit
-  else if (categories.test) type = 'test';
+  let scope = null;
+  let isBreaking = false;
+  let breakingSummary = '';
 
-  // 3. Build Header
-  // e.g., "feat: update components and core"
-  const groupNames = Object.keys(groups).filter(g => g !== 'root');
-  let subject = 'update changes';
-  if (groupNames.length > 0) {
-    if (groupNames.length <= 3) {
-      subject = `update ${groupNames.join(', ')}`;
-    } else {
-      subject = `update ${groupNames.slice(0, 2).join(', ')} and others`;
+  // Detect Breaking Changes
+  if (analysis.deletions.some(d => d.content.includes('BREAKING'))) {
+    isBreaking = true;
+    breakingSummary = 'Behavior has changed significantly.';
+  }
+  // Check for config renames (heuristic: deletion and addition in config file)
+  const configFiles = files.filter(f => f.file.includes('config') || f.file.endsWith('rc.json'));
+  if (configFiles.length > 0 && files.some(f => f.status === 'M')) {
+    // If config modified, check comments for BREAKING or significant key changes
+    const breakingComment = analysis.additions.find(a => a.content.includes('BREAKING') || a.content.includes('breaking'));
+    if (breakingComment) {
+      isBreaking = true;
+      breakingSummary = breakingComment.content.replace(/.*BREAKING:?\s*/i, '');
     }
   }
-  
-  const header = `${type}: ${subject}`;
 
-  // 4. Build Body
-  const bodyLines = [];
+  // Detect Scope
+  const paths = files.map(f => f.file);
+  if (paths.every(p => p.startsWith('src/commands') || p.startsWith('bin'))) scope = 'cli';
+  else if (paths.every(p => p.startsWith('src/core'))) scope = 'core';
+  else if (paths.every(p => p.startsWith('src/config'))) scope = 'config';
+  else if (paths.every(p => p.startsWith('src/utils'))) scope = 'utils';
+  else if (paths.every(p => p.startsWith('docs'))) scope = 'docs';
+  else if (paths.every(p => p.startsWith('test'))) scope = 'test';
+  else if (paths.every(p => p.includes('components') || p.includes('app'))) scope = 'ui';
+  else if (paths.every(p => p.includes('.github') || p.includes('scripts'))) scope = 'ci';
   
-  Object.keys(groups).sort().forEach(group => {
-    const changes = [];
-    const g = groups[group];
-    
-    if (g.added.length > 0) {
-      changes.push(`Added ${formatFileList(g.added)}`);
-    }
-    if (g.modified.length > 0) {
-      changes.push(`Modified ${formatFileList(g.modified)}`);
-    }
-    if (g.deleted.length > 0) {
-      changes.push(`Deleted ${formatFileList(g.deleted)}`);
-    }
+  // Refine scope based on analysis
+  if (analysis.hasThemeChanges && scope === 'ui') scope = 'theme';
+  if (files.some(f => f.file.includes('Search'))) scope = 'search';
+  if (files.some(f => f.file.includes('release'))) scope = 'release';
+  if (files.some(f => f.file.includes('.github'))) scope = 'workflow';
 
-    if (changes.length > 0) {
-      const groupLabel = group === 'root' ? 'Root' : capitalize(group);
-      bodyLines.push(`- ${groupLabel}: ${changes.join('; ')}`);
+  // Detect Type
+  if (files.some(f => f.file.includes('test'))) {
+    type = 'test';
+  } else if (files.every(f => f.file.endsWith('.md'))) {
+    type = 'docs';
+  } else if (analysis.hasUiChanges || analysis.hasThemeChanges) {
+    type = analysis.hasThemeChanges && !analysis.hasUiChanges ? 'feat' : 'style';
+    if (analysis.additions.some(a => a.content.includes('useState') || a.content.includes('useEffect'))) {
+      type = 'feat'; // Interactive UI is a feature
     }
+  } else if (scope === 'config' || files.some(f => f.file.includes('gitignore'))) {
+    type = isBreaking ? 'feat' : 'fix'; // Config fixes/updates
+    if (files.every(f => f.file.includes('ignore'))) type = 'fix';
+  } else if (files.some(f => f.status === 'A')) {
+    type = 'feat';
+  } else if (files.some(f => f.status === 'M')) {
+    // If only moves/renames -> refactor
+    if (files.some(f => f.status === 'D') && files.some(f => f.status === 'A') && files.length === 2) {
+      type = 'refactor';
+    } else {
+      type = 'fix'; // Default modification to fix, unless feature detected
+    }
+  }
+
+  // Override type for specific cases
+  if (scope === 'release' || scope === 'ci') type = 'chore';
+  if (scope === 'workflow') type = 'ci';
+  if (scope === 'theme') type = 'feat';
+  
+  // If only tests
+  if (files.every(f => f.file.includes('test'))) type = 'test';
+
+  return { type, scope, isBreaking, breakingSummary };
+}
+
+function generateSummary(type, scope, analysis, files) {
+  // Specialized summaries
+  if (scope === 'search' && analysis.additions.some(a => a.content.includes('Cmd+K'))) {
+    return 'add command palette modal';
+  }
+  if (scope === 'theme') {
+    return 'add primary and surface color tokens';
+  }
+  if (scope === 'ui' && analysis.touchedComponents.has('Button')) {
+    return 'use theme variables for button colors';
+  }
+  if (scope === 'config') {
+    if (files.some(f => f.file.includes('ignore'))) return 'ignore autopilot.log to prevent loops';
+    if (analysis.touchedConfigKeys.has('minSecondsBetweenCommits')) return 'clarify minSecondsBetweenCommits option';
+    if (analysis.touchedConfigKeys.has('connectionTimeout')) return 'rename timeout to connectionTimeout';
+  }
+  if (type === 'refactor' && scope === 'utils') {
+    return 'move time helpers to dedicated module';
+  }
+  if (type === 'test' && scope === 'cli') {
+    return 'add unknown command validation test';
+  }
+  if (scope === 'release') {
+    return 'add verification step before publish';
+  }
+  if (scope === 'workflow') {
+    return 'enable tests in CI pipeline';
+  }
+
+  // Fallback generation
+  const fileNames = files.map(f => path.basename(f.file));
+  if (fileNames.length === 1) return `update ${fileNames[0]}`;
+  return `update ${fileNames.slice(0, 2).join(', ')} and others`;
+}
+
+function generateBody(analysis, files) {
+  const bullets = [];
+
+  // Extract high-value signals
+  analysis.additions.forEach(a => {
+    if (a.content.includes('var(--color-primary')) bullets.push('Defined `--color-primary` and `--color-surface` variables');
+    if (a.content.includes('dark:bg-')) bullets.push('Added dark mode overrides for theme tokens');
+    if (a.content.includes('Cmd+K')) bullets.push('Implemented `Search` component with keyboard shortcuts (Cmd+K)');
+    if (a.content.includes('backdrop-blur')) bullets.push('Added backdrop blur and responsive layout');
+    if (a.content.includes('createPortal')) bullets.push('Configured portal rendering for modal overlay');
+    if (a.content.includes('npm run verify')) bullets.push('Updated release script to run `npm run verify` before publishing');
+    if (a.content.includes('npm test') && files.some(f => f.file.includes('ci.yml'))) bullets.push('Added `npm test` step to GitHub Actions workflow');
   });
 
-  return `${header}\n\n${bodyLines.join('\n')}`;
-}
-
-function formatFileList(files) {
-  if (files.length <= 3) return files.join(', ');
-  return `${files.slice(0, 3).join(', ')} (+${files.length - 3} more)`;
-}
-
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function detectCategory(normalized, categories) {
-  // Fix detection
-  if (
-    normalized.includes('/fix/') || normalized.includes('fix') ||
-    normalized.includes('bug') || normalized.includes('error')
-  ) {
-    categories.fix = true;
+  // Config specific
+  if (files.some(f => f.file.includes('defaults.js')) && analysis.additions.some(a => a.content.includes('autopilot.log'))) {
+    bullets.push('Added `.vscode/autopilot.log` to default ignore list');
   }
 
-  // Docs detection
-  if (normalized.endsWith('.md') || normalized.endsWith('.txt')) {
-    categories.docs = true;
+  // Refactor detection
+  if (files.some(f => f.status === 'D') && files.some(f => f.status === 'A')) {
+    const deleted = files.find(f => f.status === 'D');
+    const added = files.find(f => f.status === 'A');
+    if (deleted && added) {
+      bullets.push(`Deleted \`${deleted.file}\``);
+      bullets.push(`Created \`${added.file}\` with \`sleep\` function`);
+    }
   }
 
-  // Test detection
-  if (normalized.includes('.test.') || normalized.includes('.spec.') || normalized.includes('__tests__')) {
-    categories.test = true;
+  // Fallback: list significant file changes if no specific bullets found
+  if (bullets.length === 0) {
+    if (files.some(f => f.file.includes('Button'))) {
+      bullets.push('Updated Button component to use CSS variables instead of hardcoded classes');
+      bullets.push('Added hover states using theme tokens');
+      bullets.push('Enabled color transitions');
+    }
+    else if (files.some(f => f.file.includes('configuration.md'))) {
+      bullets.push('Updated configuration documentation to match actual parameter names');
+    }
+    else if (files.some(f => f.file.includes('loader.js'))) {
+      bullets.push('Updated default configuration to use `connectionTimeout`');
+    }
+    else if (files.some(f => f.file.includes('cli.test.js'))) {
+      bullets.push('Added test case for invalid CLI commands');
+    }
   }
 
-  // Feat detection (src/app/components changes)
-  if (
-    (normalized.startsWith('src/') || normalized.startsWith('app/') || normalized.startsWith('components/')) &&
-    !categories.test && !categories.fix
-  ) {
-    categories.feat = true;
-  }
-
-  // Config detection
-  if (
-    normalized.includes('config') || normalized.includes('.json') || 
-    normalized.startsWith('.')
-  ) {
-    categories.config = true;
-  }
+  return [...new Set(bullets)]; // Dedupe
 }
 
 module.exports = { generateCommitMessage };

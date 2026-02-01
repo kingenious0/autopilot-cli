@@ -105,6 +105,39 @@ async function fetch(root) {
 }
 
 /**
+ * Get diff of changes
+ * @param {string} root - Repository root path
+ * @param {boolean} staged - Whether to get staged diff (default: true)
+ * @returns {Promise<string>} Diff content
+ */
+async function getDiff(root, staged = true) {
+  try {
+    const args = ['diff'];
+    if (staged) args.push('--cached');
+    args.push('-U3');
+    const { stdout } = await execa('git', args, { cwd: root });
+    return stdout || '';
+  } catch (error) {
+    return '';
+  }
+}
+
+module.exports = {
+  getBranch,
+  hasChanges,
+  getPorcelainStatus,
+  addAll,
+  commit,
+  fetch,
+  getDiff
+};
+    return { ok: true, stdout, stderr };
+  } catch (error) {
+    return { ok: false, stdout: '', stderr: error.message };
+  }
+}
+
+/**
  * Check if remote is ahead/behind
  * @param {string} root - Repository root path
  * @returns {Promise<{ok: boolean, ahead: boolean, behind: boolean, raw: string}>} Status object
