@@ -21,14 +21,14 @@ export default function Home() {
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
           Autopilot CLI — Git automation with safety rails
         </h1>
-        <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
           Automatic commits & pushes so you stay focused on coding.
         </p>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Link 
             href="/docs"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-link text-white font-semibold hover:bg-link-hover transition-all flex items-center justify-center gap-2 shadow-lg shadow-link/20 hover:shadow-link/30"
           >
             Get Started <ArrowRight className="h-4 w-4" />
           </Link>
@@ -36,7 +36,7 @@ export default function Home() {
             href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-background text-foreground font-semibold border border-border hover:bg-muted transition-all flex items-center justify-center gap-2"
           >
             GitHub Repo
           </Link>
@@ -63,7 +63,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
+      <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard 
@@ -97,9 +97,9 @@ export default function Home() {
       {/* How it works */}
       <section className="py-24 px-4">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl font-bold text-center mb-16">How it works</h2>
+          <h2 className="text-3xl font-bold text-center mb-16 text-foreground">How it works</h2>
           
-          <div className="space-y-12 relative before:absolute before:inset-0 before:ml-5 md:before:ml-[50%] before:-translate-x-px md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:dark:via-gray-800 before:to-transparent">
+          <div className="space-y-12 relative before:absolute before:inset-0 before:ml-5 md:before:ml-[50%] before:-translate-x-px md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
             <Step 
               number="1"
               title="Initialize"
@@ -141,7 +141,7 @@ export default function Home() {
 function FeatureCard({ icon, iconBg, title, description }: { icon: React.ReactNode, iconBg: string, title: string, description: string }) {
   return (
     <div className="bg-card p-8 rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
-      <div className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-gray-200 dark:shadow-none`}>
+      <div className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-muted/50`}>
         {icon}
       </div>
       <h3 className="text-xl font-bold mb-3 text-foreground">{title}</h3>
