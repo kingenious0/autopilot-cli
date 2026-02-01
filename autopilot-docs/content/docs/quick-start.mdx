@@ -1,0 +1,45 @@
+---
+title: Quick Start
+description: Get up and running with Autopilot in less than a minute.
+---
+
+# Quick Start
+
+Follow these steps to start automating your Git workflow.
+
+## 1. Initialize
+
+Navigate to your Git repository and initialize Autopilot:
+
+```bash
+cd my-project
+autopilot init
+```
+
+This will create a default `.autopilotrc.json` and `.autopilotignore` file in your project root.
+
+## 2. Start Watching
+
+Start the background daemon to begin monitoring your files:
+
+```bash
+autopilot start
+```
+
+Autopilot is now running in the background! Any changes you make will be automatically committed and pushed (after a debounce period).
+
+## 3. Check Status
+
+Verify that Autopilot is running:
+
+```bash
+autopilot status
+```
+
+## 4. Stop
+
+When you're done for the day or want to stop automation:
+
+```bash
+autopilot stop
+```

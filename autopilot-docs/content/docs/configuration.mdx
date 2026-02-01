@@ -1,0 +1,81 @@
+---
+title: Configuration
+description: Customize Autopilot behavior with .autopilotrc.json
+---
+
+# Configuration
+
+Autopilot uses a `.autopilotrc.json` file for configuration. It is created automatically when you run `autopilot init`.
+
+## File Locations
+
+- **Config**: `.autopilotrc.json` (repo root)
+- **Ignore**: `.autopilotignore` (repo root)
+
+## Full Example
+
+```json
+{
+  "debounceSeconds": 20,
+  "minSecondsBetweenCommits": 180,
+  "autoPush": true,
+  "blockedBranches": ["main", "master"],
+  "requireChecks": false,
+  "checks": ["npm test"],
+  "commitMessageMode": "smart"
+}
+```
+
+## Settings
+
+### `debounceSeconds`
+- **Type:** number
+- **Default:** 20
+- **Description:** Wait time (in seconds) after the last file change before checking git status. This prevents committing half-written code.
+
+### `minSecondsBetweenCommits`
+- **Type:** number
+- **Default:** 180
+- **Description:** Minimum time (in seconds) between commits. Helps prevent commit spam.
+
+### `autoPush`
+- **Type:** boolean
+- **Default:** true
+- **Description:** Whether to push changes to `origin/<branch>` automatically after commit.
+
+### `blockedBranches`
+- **Type:** string[]
+- **Default:** `["main", "master"]`
+- **Description:** List of branches where auto-commit is disabled. Useful for protecting production branches.
+
+### `requireChecks`
+- **Type:** boolean
+- **Default:** false
+- **Description:** Run checks before committing. If any check fails, the commit is skipped.
+
+### `checks`
+- **Type:** string[]
+- **Default:** `[]`
+- **Description:** Shell commands executed sequentially when `requireChecks` is true. Example: `["npm run lint", "npm test"]`.
+
+### `commitMessageMode`
+- **Type:** `"smart" | "simple"`
+- **Default:** `"smart"`
+- **Description:** 
+  - `smart`: Uses file-based conventional commit messages (e.g., `fix: update utils.js`).
+  - `simple`: Uses a static message like `chore: update changes`.
+
+## Ignore File (.autopilotignore)
+
+You can specify files to ignore using gitignore-style patterns in `.autopilotignore`.
+
+Example:
+
+```
+node_modules/
+dist/
+.env
+*.log
+```
+
+> **Note:** Autopilot always ignores `.git`, `.autopilot.pid`, and `autopilot.log` regardless of this file.

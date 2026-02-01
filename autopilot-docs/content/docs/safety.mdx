@@ -1,0 +1,38 @@
+---
+title: Safety Features
+description: How Autopilot keeps your repository safe.
+---
+
+# Safety Features
+
+Autopilot includes several safety mechanisms to prevent accidents and ensure repository integrity.
+
+## 1. Blocked Branches
+
+Autopilot refuses to commit on branches listed in `blockedBranches` (default: `main`, `master`). This prevents accidental direct commits to production or protected branches.
+
+## 2. Remote Ahead Protection
+
+Before performing actions, Autopilot fetches and checks if the remote branch is ahead of your local branch. If it is, Autopilot pauses and logs a warning, instructing you to pull changes first. This prevents merge conflicts.
+
+## 3. Required Checks
+
+If `requireChecks` is enabled in configuration, the commands specified in `checks` must pass (exit code 0) before a commit is created. This ensures you don't commit broken code.
+
+## 4. Debounce + Rate Limiting
+
+- **Debouncing**: `debounceSeconds` ensures Autopilot waits for you to stop typing/saving before checking status.
+- **Rate Limiting**: `minSecondsBetweenCommits` prevents creating too many commits in a short period.
+
+## 5. Ignore Patterns
+
+- **.autopilotignore**: Supports standard glob patterns to exclude files.
+- **Built-in Ignores**: `.git`, `.autopilot.pid`, `autopilot.log`, and `.vscode/` (specific noise files) are automatically ignored.
+
+## 6. Graceful Errors
+
+Errors are handled without crashing the watcher. Warnings are printed to the console, and verbose details are written to `autopilot.log`.
+
+## 7. PID Tracking
+
+The watcher writes a `.autopilot.pid` file in the repository root on start and removes it on exit. This ensures only one instance of Autopilot runs per repository at a time.

@@ -1,0 +1,50 @@
+---
+title: Introduction
+description: Intelligent Git automation that commits and pushes your code, so you can focus on building.
+---
+
+# 🚀 Autopilot
+
+**Intelligent Git automation that commits and pushes your code, so you can focus on building.**
+
+Built by [Praise Masunga](https://github.com/PraiseTechzw) (PraiseTechzw).
+
+## 🎯 Why Autopilot?
+
+Autopilot is designed for developers who want to stay in the flow. It solves manual Git workflow fatigue by handling the repetitive cycle of staging, committing, and pushing changes, allowing you to focus entirely on writing code.
+
+### ❌ Before Autopilot
+
+```bash
+# Every. Single. Time.
+git add .
+git commit -m "update stuff"
+git push
+
+# Repeat 50+ times a day...
+# Lose focus on coding
+# Forget to commit
+# Inconsistent messages
+```
+
+### ✅ With Autopilot
+
+```bash
+# One time setup
+autopilot init
+autopilot start
+
+# That's it! 
+# Focus on coding
+# Auto-commits with smart messages
+# Never lose work again
+```
+
+## ✨ Features
+
+- **🧠 Smart Commits**: Generates professional conventional commit messages automatically.
+- **⚡ Watcher Engine**: Real-time file monitoring with smart debouncing using `chokidar`.
+- **🛡️ Safety First**: Blocks commits on protected branches and checks remote status.
+- **🔄 Automated Flow**: Fetches, stages, commits, and pushes (optional) automatically.
+- **⚙️ Zero Config**: Works out of the box, but fully configurable via `.autopilotrc.json`.
+- **🩺 Self-Healing**: Includes a `doctor` command to diagnose and fix issues.

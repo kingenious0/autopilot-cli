@@ -1,0 +1,43 @@
+---
+title: Commands
+description: Complete reference for the Autopilot CLI commands.
+---
+
+# Commands
+
+| Command | Description |
+|---------|-------------|
+| `autopilot init` | Initializes configuration and ignore files in the current directory. |
+| `autopilot start` | Starts the background watcher daemon. |
+| `autopilot stop` | Stops the running watcher daemon. |
+| `autopilot status` | Shows the current status of the watcher process. |
+| `autopilot doctor` | Runs diagnostics to verify environment and configuration. |
+| `autopilot --help` | Displays help information. |
+
+## `init`
+
+Creates `.autopilotrc.json` and `.autopilotignore` if they don't exist. It also ensures `.autopilot.log` is added to your `.gitignore`.
+
+## `start`
+
+Starts the file watcher. It will:
+- Check for existing instances (PID check).
+- Verify the branch is not blocked.
+- Ensure the local branch is not behind remote.
+- Start monitoring files for changes.
+
+## `stop`
+
+Stops the currently running Autopilot instance for the current repository.
+
+## `status`
+
+Checks if the Autopilot process is running for the current repository.
+
+## `doctor`
+
+Runs a suite of diagnostic checks to help troubleshoot issues:
+- Git repository validity.
+- Node.js version compatibility.
+- Configuration file validity.
+- Permissions and path checks.
