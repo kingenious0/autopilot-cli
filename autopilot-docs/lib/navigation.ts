@@ -19,12 +19,17 @@ export const navigation: NavSection[] = [
     ],
   },
   {
-    title: 'Usage',
+    title: 'Guides',
     items: [
-      { title: 'Commands', href: '/docs/commands' },
       { title: 'Configuration', href: '/docs/configuration' },
       { title: 'Safety Features', href: '/docs/safety' },
       { title: 'Troubleshooting', href: '/docs/troubleshooting' },
+    ],
+  },
+  {
+    title: 'Reference',
+    items: [
+      { title: 'Commands', href: '/docs/commands' },
     ],
   },
   {
