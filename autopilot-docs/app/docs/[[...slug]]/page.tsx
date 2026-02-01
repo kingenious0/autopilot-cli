@@ -6,6 +6,8 @@ import { Pre } from '@/components/Pre';
 import { AlertCircle, Edit } from 'lucide-react';
 import { DOCS_EDIT_URL, ISSUES_URL } from '@/lib/constants';
 import { components } from '@/components/MDXComponents';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeSlug from 'rehype-slug';
 
 export async function generateStaticParams() {
   const files = getDocSlugs();
@@ -65,7 +67,18 @@ export default async function DocPage({
         </p>
       )}
       <hr className="my-8 border-gray-200 dark:border-gray-800" />
-      <MDXRemote source={doc.content} components={components} />
+      <MDXRemote 
+        source={doc.content} 
+        components={components} 
+        options={{
+          mdxOptions: {
+            rehypePlugins: [
+              rehypeHighlight,
+              rehypeSlug,
+            ],
+          },
+        }}
+      />
     </article>
   );
 }
