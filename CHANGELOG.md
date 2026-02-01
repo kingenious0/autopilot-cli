@@ -22,6 +22,19 @@ This project follows Semantic Versioning (https://semver.org).
 
 ---
 
+## [0.1.6] – 2026-02-01
+
+### Added
+- **Professional Commit Messages**: Completely overhauled the commit message generator to provide detailed, human-readable context.
+  - **Smart Grouping**: Changes are now grouped by category (e.g., Core, Components, Docs) for better readability.
+  - **Detailed Breakdowns**: Explicitly lists added, modified, and deleted files with specific context.
+  - **Semantic Headers**: Automatically generates descriptive headers like `feat: update core and components` instead of generic messages.
+- **Enhanced Git Analysis**: Upgraded `getPorcelainStatus` to accurately track file status codes (Added, Modified, Deleted).
+
+### Changed
+- Refactored `src/core/commit.js` to implement the new categorization and formatting logic.
+- Updated `src/core/git.js` to provide richer status data to the commit generator.
+
 ## [0.1.4] – 2026-02-01
 
 ### Fixed

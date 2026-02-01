@@ -2,9 +2,11 @@
  * Smart commit message generator
  */
 
+const path = require('path');
+
 /**
  * Generate a conventional commit message based on changed files
- * @param {string[]} files - Array of changed file paths
+ * @param {Array<{status: string, file: string}>} files - Array of changed file objects
  * @returns {string} Conventional commit message
  */
 function generateCommitMessage(files) {
@@ -12,105 +14,141 @@ function generateCommitMessage(files) {
     return 'chore: update changes';
   }
 
+  // 1. Group files by category/directory
+  const groups = {};
   const categories = {
     fix: false,
     feat: false,
     docs: false,
     test: false,
-    chore: false,     // Generic chore (unknown files)
-    config: false,    // Specific config files
+    config: false,
   };
 
-  for (const file of files) {
-    const lowerFile = file.toLowerCase();
-    const normalized = lowerFile.replace(/\\/g, '/');
-    let matched = false;
-
-    // Fix detection (highest priority)
-    if (
-      normalized.includes('/fix/') ||
-      normalized.includes('fix-') ||
-      normalized.includes('-fix') ||
-      normalized.includes('bugfix') ||
-      normalized.includes('hotfix') ||
-      normalized.includes('error') ||
-      normalized.includes('exception') ||
-      normalized.endsWith('error.js') ||
-      normalized.endsWith('error.ts')
-    ) {
-      categories.fix = true;
-      matched = true;
+  files.forEach(({ status, file }) => {
+    const normalized = file.replace(/\\/g, '/');
+    const parts = normalized.split('/');
+    let group = 'root';
+    
+    // Determine group based on path
+    if (parts.length > 1) {
+      if (parts[0] === 'src' && parts.length > 2) {
+        group = parts[1]; // e.g. src/core -> core
+      } else if (parts[0] === 'app' || parts[0] === 'pages' || parts[0] === 'components' || parts[0] === 'lib') {
+        group = parts[0]; // Next.js standard folders
+      } else {
+        group = parts[0];
+      }
     }
 
-    // Docs detection
-    if (normalized.endsWith('.md') || normalized.endsWith('.txt')) {
-      categories.docs = true;
-      matched = true;
+    if (!groups[group]) {
+      groups[group] = { added: [], modified: [], deleted: [] };
     }
 
-    // Test detection
-    if (
-      normalized.includes('.test.') ||
-      normalized.includes('.spec.') ||
-      normalized.includes('__tests__')
-    ) {
-      categories.test = true;
-      matched = true;
-    }
+    // Categorize for commit type
+    detectCategory(normalized, categories);
 
-    // Feat detection - src/ changes that aren't tests
-    if (
-      (normalized.startsWith('src/') || normalized.includes('/src/')) &&
-      !categories.test // Ensure we don't count tests as features if they happen to be in src
-    ) {
-      categories.feat = true;
-      matched = true;
+    // Add to group lists based on status
+    // Status codes: '??' (untracked), 'A' (added), 'M' (modified), 'D' (deleted), 'R' (renamed)
+    if (status === '??' || status === 'A') {
+      groups[group].added.push(path.basename(normalized));
+    } else if (status === 'D') {
+      groups[group].deleted.push(path.basename(normalized));
+    } else {
+      groups[group].modified.push(path.basename(normalized));
     }
+  });
 
-    // Config files detection
-    if (
-      normalized === 'package.json' ||
-      normalized.endsWith('.yml') ||
-      normalized.endsWith('.yaml') ||
-      normalized.endsWith('.json') ||
-      normalized.endsWith('.config.js') ||
-      normalized.endsWith('.config.ts') ||
-      normalized.includes('.github/') ||
-      normalized.includes('.gitignore') ||
-      normalized.includes('.editorconfig')
-    ) {
-      categories.config = true;
-      matched = true;
-    }
+  // 2. Determine primary type
+  let type = 'chore';
+  if (categories.fix) type = 'fix';
+  else if (categories.feat) type = 'feat';
+  else if (categories.docs) type = 'docs';
+  else if (categories.config) type = 'chore'; // Config usually chore unless explicit
+  else if (categories.test) type = 'test';
 
-    // Default to chore for other files
-    if (!matched) {
-      categories.chore = true;
+  // 3. Build Header
+  // e.g., "feat: update components and core"
+  const groupNames = Object.keys(groups).filter(g => g !== 'root');
+  let subject = 'update changes';
+  if (groupNames.length > 0) {
+    if (groupNames.length <= 3) {
+      subject = `update ${groupNames.join(', ')}`;
+    } else {
+      subject = `update ${groupNames.slice(0, 2).join(', ')} and others`;
     }
   }
+  
+  const header = `${type}: ${subject}`;
 
-  // Priority order: fix > feat > docs > test > chore
-  if (categories.fix) {
-    return 'fix: resolve issues';
-  }
-  if (categories.feat) {
-    return 'feat: add new features';
-  }
-  if (categories.docs) {
-    return 'docs: update documentation';
-  }
-  if (categories.test) {
-    return 'test: update tests';
-  }
-  // "chore" category splits into explicit config vs generic changes
-  if (categories.config) {
-    return 'chore: update configuration';
-  }
-  if (categories.chore) {
-    return 'chore: update changes';
+  // 4. Build Body
+  const bodyLines = [];
+  
+  Object.keys(groups).sort().forEach(group => {
+    const changes = [];
+    const g = groups[group];
+    
+    if (g.added.length > 0) {
+      changes.push(`Added ${formatFileList(g.added)}`);
+    }
+    if (g.modified.length > 0) {
+      changes.push(`Modified ${formatFileList(g.modified)}`);
+    }
+    if (g.deleted.length > 0) {
+      changes.push(`Deleted ${formatFileList(g.deleted)}`);
+    }
+
+    if (changes.length > 0) {
+      const groupLabel = group === 'root' ? 'Root' : capitalize(group);
+      bodyLines.push(`- ${groupLabel}: ${changes.join('; ')}`);
+    }
+  });
+
+  return `${header}\n\n${bodyLines.join('\n')}`;
+}
+
+function formatFileList(files) {
+  if (files.length <= 3) return files.join(', ');
+  return `${files.slice(0, 3).join(', ')} (+${files.length - 3} more)`;
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function detectCategory(normalized, categories) {
+  // Fix detection
+  if (
+    normalized.includes('/fix/') || normalized.includes('fix') ||
+    normalized.includes('bug') || normalized.includes('error')
+  ) {
+    categories.fix = true;
   }
 
-  return 'chore: update changes';
+  // Docs detection
+  if (normalized.endsWith('.md') || normalized.endsWith('.txt')) {
+    categories.docs = true;
+  }
+
+  // Test detection
+  if (normalized.includes('.test.') || normalized.includes('.spec.') || normalized.includes('__tests__')) {
+    categories.test = true;
+  }
+
+  // Feat detection (src/app/components changes)
+  if (
+    (normalized.startsWith('src/') || normalized.startsWith('app/') || normalized.startsWith('components/')) &&
+    !categories.test && !categories.fix
+  ) {
+    categories.feat = true;
+  }
+
+  // Config detection
+  if (
+    normalized.includes('config') || normalized.includes('.json') || 
+    normalized.startsWith('.')
+  ) {
+    categories.config = true;
+  }
 }
 
 module.exports = { generateCommitMessage };
