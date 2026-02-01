@@ -60,14 +60,14 @@ export default async function DocPage({
   const issueUrl = `${ISSUES_URL}/new?title=${issueTitle}&body=${issueBody}`;
 
   return (
-    <article className="prose prose-blue dark:prose-invert max-w-none">
+    <article className="prose max-w-none">
       <h1>{doc.metadata.title}</h1>
       {doc.metadata.description && (
-        <p className="lead text-xl text-gray-500 dark:text-gray-400">
+        <p className="lead text-xl text-muted-foreground">
           {doc.metadata.description}
         </p>
       )}
-      <hr className="my-8 border-gray-200 dark:border-gray-800" />
+      <hr className="my-8 border-border" />
       <MDXRemote 
         source={doc.content} 
         components={components} 
