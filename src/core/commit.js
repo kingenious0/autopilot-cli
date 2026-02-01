@@ -126,19 +126,7 @@ function determineContext(files, analysis) {
   const fileNames = files.map(f => f.file);
 
   // TYPE DETECTION
-  if (fileNames.some(f => f.includes('test'))) {
-    type = 'test';
-    analysis.hasTests = true;
-  } else if (fileNames.some(f => f.includes('docs') || f.endsWith('.md'))) {
-    type = 'docs';
-    analysis.hasDocs = true;
-  } else if (fileNames.some(f => f.includes('.github') || f.includes('workflow'))) {
-    type = 'ci';
-  } else if (fileNames.some(f => f.endsWith('package.json'))) {
-    type = 'chore';
-    const versionChange = analysis.additions.find(a => a.file.endsWith('package.json') && a.content.includes('"version":'));
-    if (versionChange) scope = 'release';
-  } else if (analysis.hasUiChanges || analysis.hasThemeChanges) {
+  if (analysis.hasUiChanges || analysis.hasThemeChanges) {
     type = 'style';
   } else if (fileNames.some(f => f.startsWith('src/'))) {
     const isNew = files.some(f => f.status === 'A' || f.status === '??');
@@ -152,6 +140,20 @@ function determineContext(files, analysis) {
     } else {
         type = 'fix';
     }
+  } else if (fileNames.some(f => f.includes('test'))) {
+    type = 'test';
+    analysis.hasTests = true;
+  } else if (fileNames.some(f => f.includes('docs') || f.endsWith('.md'))) {
+    type = 'docs';
+    analysis.hasDocs = true;
+  } else if (fileNames.some(f => f.includes('.github') || f.includes('workflow'))) {
+    type = 'ci';
+  } else if (fileNames.some(f => f.endsWith('package.json'))) {
+    type = 'chore';
+    const versionChange = analysis.additions.find(a => a.file.endsWith('package.json') && a.content.includes('"version":'));
+    if (versionChange) scope = 'release';
+  } else if (analysis.hasUiChanges || analysis.hasThemeChanges) {
+    type = 'style';
   }
 
   // SCOPE DETECTION
