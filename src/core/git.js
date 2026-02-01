@@ -49,7 +49,11 @@ async function getPorcelainStatus(root) {
 
     const files = raw
       .split(/\r?\n/)
-      .map(line => line.slice(3).trim()); // Remove status prefix (XY + space)
+      .map(line => {
+        const status = line.slice(0, 2).trim();
+        const file = line.slice(3).trim();
+        return { status, file };
+      });
 
     return { ok: true, files, raw };
   } catch (error) {
@@ -142,6 +146,24 @@ async function push(root, branch) {
   }
 }
 
+/**
+ * Get diff of changes
+ * @param {string} root - Repository root path
+ * @param {boolean} staged - Whether to get staged diff (default: true)
+ * @returns {Promise<string>} Diff content
+ */
+async function getDiff(root, staged = true) {
+  try {
+    const args = ['diff'];
+    if (staged) args.push('--cached');
+    args.push('-U3');
+    const { stdout } = await execa('git', args, { cwd: root });
+    return stdout || '';
+  } catch (error) {
+    return '';
+  }
+}
+
 module.exports = {
   getBranch,
   hasChanges,
@@ -151,4 +173,5 @@ module.exports = {
   fetch,
   isRemoteAhead,
   push,
+  getDiff
 };

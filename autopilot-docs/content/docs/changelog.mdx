@@ -3,41 +3,56 @@ title: Changelog
 description: Latest updates and improvements to Autopilot CLI.
 ---
 
-Stay up to date with the latest changes to Autopilot CLI. For a full history of releases, visit our [GitHub Releases](https://github.com/autopilot-cli/autopilot/releases) page.
+Stay up to date with the latest changes to Autopilot CLI. For a full history of releases, visit our [GitHub Releases](https://github.com/PraiseTechzw/autopilot-cli/releases) page.
+
+## v0.1.6
+
+**Release Date:** 2026-02-01
+
+Major upgrade to the commit message generation engine, bringing it to professional standards.
+
+-   **New:** **Smart Commit Generator 2.0**
+    -   Offline diff parsing using `git diff` (no external APIs).
+    -   Full Conventional Commits compliance (`feat`, `fix`, `docs`, `style`, `test`).
+    -   Intelligent scope detection for UI, Theme, Search, and Docs.
+    -   Golden Test Suite with 10 fixtures for guaranteed message quality.
+-   **Improvement:** Switched from file-based status checks to staged diff analysis for commit messages.
+-   **Fix:** Resolved issue where new files were incorrectly flagged as `fix` instead of `feat`.
+-   **Dev:** Added `npm run verify` script for pre-release checks.
 
 ## v0.1.4
 
-**Release Date:** 2024-05-20
+**Release Date:** 2026-02-01
 
-This release focuses on stability and Windows compatibility improvements.
+Focus on stability, Windows compatibility, and release safety.
 
--   **Fix:** Resolved path separator issues on Windows that caused some files to be ignored incorrectly.
--   **Improvement:** Enhanced debounce logic to prevent "double commits" when saving multiple files at once.
--   **Docs:** Added new [Troubleshooting](/docs/troubleshooting) guide.
+-   **Fix:** **Windows Compatibility**: Resolved absolute path issues in ignore rules.
+-   **Fix:** **Watcher Noise**: Fixed infinite commit loops caused by `.vscode` analytics.
+-   **Fix:** **CLI Crash**: Resolved `autopilot start` failure due to miswired Commander action handlers.
+-   **New:** **Release Gates**: Added `prepublishOnly` hooks to block broken releases.
+-   **New:** **Diagnostics**: Added `autopilot doctor` for environment health checks.
 
 ## v0.1.3
 
-**Release Date:** 2024-05-10
+**Release Date:** 2026-01-31
 
-Introducing the new "Doctor" command to help diagnose environment issues.
+**Initial Public Release** as `@traisetech/autopilot`.
 
--   **New:** Added `autopilot doctor` command to check for Node.js version, git configuration, and permissions.
--   **New:** Support for `.autopilotignore` file to exclude specific files from auto-commits without adding them to `.gitignore`.
--   **Fix:** `autopilot status` now correctly reports "Stopped" instead of crashing when the daemon is not running.
+-   **Feature:** Intelligent auto commit & push.
+-   **Feature:** Background watcher with debouncing.
+-   **Feature:** Branch protection (blocks commits to `main`/`master` by default).
+-   **Feature:** Remote-ahead safety checks.
+-   **Feature:** Per-project configuration via `.autopilotrc.json`.
 
-## v0.1.2
+## v0.1.1
 
-**Release Date:** 2024-05-01
+**Release Date:** 2026-01-30
 
--   **New:** Added support for `minInterval` configuration in `.autopilotrc.json`.
--   **Improvement:** Better error handling for network timeouts during `git push`.
+-   **Change:** Renamed package scope to `@traisetech`.
+-   **Change:** Optimized distribution size.
 
 ## v0.1.0
 
-**Release Date:** 2024-04-15
+**Release Date:** 2026-01-29
 
-Initial public release of Autopilot CLI.
-
--   **Feature:** Automatic file watching and committing.
--   **Feature:** Background daemon management with `start` and `stop` commands.
--   **Feature:** Safety rails for blocked branches (e.g., `main`).
+-   **New:** Initial development release with core architecture.

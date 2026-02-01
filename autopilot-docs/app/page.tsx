@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowRight, Shield, Zap, GitCommit, Terminal, Check, Copy, Play, Settings, AlertCircle } from 'lucide-react';
+import { ArrowRight, Terminal, Check, Copy, Play, AlertCircle } from 'lucide-react';
+import { FeatureShowcase } from '@/components/FeatureShowcase';
 import { REPO_URL } from '@/lib/constants';
 
 export default function Home() {
@@ -14,8 +15,35 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Autopilot CLI',
+    operatingSystem: 'Windows, macOS, Linux',
+    applicationCategory: 'DeveloperApplication',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description: 'Intelligent Git automation with safety rails. Automatic commits & pushes so you stay focused on coding.',
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5.0',
+      ratingCount: '1',
+    },
+    author: {
+      '@type': 'Person',
+      name: 'PraiseTech',
+    },
+  };
+
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section className="py-24 px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
@@ -63,36 +91,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <FeatureCard 
-              icon={<GitCommit className="h-6 w-6 text-white" />}
-              iconBg="bg-blue-500"
-              title="Smart Commits"
-              description="Generates professional conventional commit messages automatically based on your changes."
-            />
-            <FeatureCard 
-              icon={<Zap className="h-6 w-6 text-white" />}
-              iconBg="bg-yellow-500"
-              title="Watcher Engine"
-              description="Real-time file monitoring with smart debouncing using chokidar to catch every save."
-            />
-            <FeatureCard 
-              icon={<Shield className="h-6 w-6 text-white" />}
-              iconBg="bg-green-500"
-              title="Safety First"
-              description="Blocks commits on protected branches and checks remote status to prevent conflicts."
-            />
-            <FeatureCard 
-              icon={<Settings className="h-6 w-6 text-white" />}
-              iconBg="bg-purple-500"
-              title="Zero Config"
-              description="Works out of the box, but fully configurable via .autopilotrc.json if needed."
-            />
-          </div>
-        </div>
-      </section>
+      <FeatureShowcase />
 
       {/* How it works */}
       <section className="py-24 px-4">
@@ -126,26 +125,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-gray-200 dark:border-gray-800 mt-auto bg-gray-50 dark:bg-gray-900/30">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-500 dark:text-gray-400 font-medium">
-            Built by <a href="https://github.com/PraiseTechzw" className="text-blue-600 dark:text-blue-400 hover:underline decoration-2 underline-offset-2 transition-colors">Praise Masunga (PraiseTechzw)</a>
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-function FeatureCard({ icon, iconBg, title, description }: { icon: React.ReactNode, iconBg: string, title: string, description: string }) {
-  return (
-    <div className="bg-card p-8 rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
-      <div className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-muted/50`}>
-        {icon}
-      </div>
-      <h3 className="text-xl font-bold mb-3 text-foreground">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed">{description}</p>
+      {/* Footer is handled by layout */}
     </div>
   );
 }
