@@ -15,8 +15,35 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Autopilot CLI',
+    operatingSystem: 'Windows, macOS, Linux',
+    applicationCategory: 'DeveloperApplication',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description: 'Intelligent Git automation with safety rails. Automatic commits & pushes so you stay focused on coding.',
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5.0',
+      ratingCount: '1',
+    },
+    author: {
+      '@type': 'Person',
+      name: 'PraiseTech',
+    },
+  };
+
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section className="py-24 px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
