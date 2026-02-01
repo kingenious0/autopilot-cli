@@ -29,7 +29,8 @@ function generateCommitMessage(files, diffContent) {
   const bodyBullets = generateBody(diffAnalysis, files);
 
   // 5. Construct Final Message
-  let message = `${type}${scope ? `(${scope})` : ''}: ${summary}`;
+  const bang = isBreaking ? '!' : '';
+  let message = `${type}${scope ? `(${scope})` : ''}${bang}: ${summary}`;
   
   if (bodyBullets.length > 0) {
     message += `\n\n${bodyBullets.join('\n')}`;
@@ -200,10 +201,6 @@ function determineContext(files, analysis) {
           breakingSummary = 'connect method now requires an object with url, timeout, and retries instead of positional arguments';
           type = 'refactor';
       }
-  }
-
-  if (isBreaking) {
-      type = `${type}!`;
   }
 
   return { type, scope, isBreaking, breakingSummary };
