@@ -39,17 +39,17 @@ function CustomLink(props: any) {
 
   if (href.startsWith('/')) {
     return (
-      <Link href={href} className="font-medium text-blue-600 underline decoration-blue-600/30 underline-offset-4 hover:decoration-blue-600 transition-colors dark:text-blue-400 dark:decoration-blue-400/30 dark:hover:decoration-blue-400">
+      <Link href={href} className="font-medium text-link underline decoration-link/30 underline-offset-4 hover:decoration-link transition-colors">
         {props.children}
       </Link>
     );
   }
 
   if (href.startsWith('#')) {
-    return <a {...props} className="font-medium text-blue-600 underline decoration-blue-600/30 underline-offset-4 hover:decoration-blue-600 transition-colors dark:text-blue-400 dark:decoration-blue-400/30 dark:hover:decoration-blue-400" />;
+    return <a {...props} className="font-medium text-link underline decoration-link/30 underline-offset-4 hover:decoration-link transition-colors" />;
   }
 
-  return <a target="_blank" rel="noopener noreferrer" {...props} className="font-medium text-blue-600 underline decoration-blue-600/30 underline-offset-4 hover:decoration-blue-600 transition-colors dark:text-blue-400 dark:decoration-blue-400/30 dark:hover:decoration-blue-400" />;
+  return <a target="_blank" rel="noopener noreferrer" {...props} className="font-medium text-link underline decoration-link/30 underline-offset-4 hover:decoration-link transition-colors" />;
 }
 
 export const components = {

@@ -140,12 +140,12 @@ export default function Home() {
 
 function FeatureCard({ icon, iconBg, title, description }: { icon: React.ReactNode, iconBg: string, title: string, description: string }) {
   return (
-    <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+    <div className="bg-card p-8 rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow">
       <div className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-gray-200 dark:shadow-none`}>
         {icon}
       </div>
-      <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{description}</p>
+      <h3 className="text-xl font-bold mb-3 text-foreground">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -153,19 +153,19 @@ function FeatureCard({ icon, iconBg, title, description }: { icon: React.ReactNo
 function Step({ number, title, description, command, icon, reverse }: { number: string, title: string, description: string, command: string, icon: React.ReactNode, reverse?: boolean }) {
   return (
     <div className={`relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group ${reverse ? 'md:flex-row-reverse' : ''}`}>
-      <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-gray-950 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold z-10 shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2 shadow-sm">
+      <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-blue-500/10 text-link font-bold z-10 shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2 shadow-sm">
         {number}
       </div>
       
-      <div className={`w-[calc(100%-3.5rem)] md:w-[calc(50%-2rem)] p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow ml-4 md:ml-0`}>
+      <div className={`w-[calc(100%-3.5rem)] md:w-[calc(50%-2rem)] p-6 bg-card rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow ml-4 md:ml-0`}>
         <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300">
+          <div className="p-2 bg-muted rounded-lg text-muted-foreground">
             {icon}
           </div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
+          <h3 className="text-lg font-bold text-foreground">{title}</h3>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm leading-relaxed">{description}</p>
-        <div className="bg-gray-900 rounded-lg p-3 font-mono text-xs text-gray-300 flex items-center gap-2">
+        <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{description}</p>
+        <div className="bg-[#1c1c1c] rounded-lg p-3 font-mono text-xs text-gray-300 flex items-center gap-2">
           <span className="text-green-400">$</span> {command}
         </div>
       </div>

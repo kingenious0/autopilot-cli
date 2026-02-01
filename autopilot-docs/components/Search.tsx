@@ -134,16 +134,16 @@ export function Search({ docs }: SearchProps) {
         </div>
 
         {/* Results */}
-        <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
+        <div className="flex-1 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-border">
           {!query && (
-            <div className="py-12 text-center text-sm text-gray-500">
+            <div className="py-12 text-center text-sm text-muted-foreground">
               <p>Type to search...</p>
             </div>
           )}
 
           {query && results.length === 0 && (
-            <div className="py-12 text-center text-sm text-gray-500">
-              <p>No results found for <span className="text-gray-900 dark:text-gray-100">"{query}"</span></p>
+            <div className="py-12 text-center text-sm text-muted-foreground">
+              <p>No results found for <span className="text-foreground">"{query}"</span></p>
             </div>
           )}
 
@@ -160,38 +160,38 @@ export function Search({ docs }: SearchProps) {
                      onClick={() => navigateTo(result)}
                      className={clsx(
                        "flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-colors scroll-m-2",
-                       isSelected ? "bg-blue-50 dark:bg-blue-900/20" : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                       isSelected ? "bg-link/10" : "hover:bg-muted/50"
                      )}
                    >
                      <div className={clsx(
                        "flex-shrink-0 p-2 rounded-md",
-                       isSelected ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400" : "bg-gray-100 dark:bg-gray-800 text-gray-500"
+                       isSelected ? "bg-link/20 text-link" : "bg-muted text-muted-foreground"
                      )}>
                        {result.type === 'page' ? <FileText className="h-5 w-5" /> : <Hash className="h-5 w-5" />}
                      </div>
                      
                      <div className="flex-1 min-w-0">
-                       <div className={clsx("font-medium truncate", isSelected ? "text-blue-700 dark:text-blue-300" : "text-gray-900 dark:text-gray-100")}>
+                       <div className={clsx("font-medium truncate", isSelected ? "text-link" : "text-foreground")}>
                          {result.title}
                        </div>
-                       <div className="flex items-center gap-2 text-xs text-gray-500 truncate">
+                       <div className="flex items-center gap-2 text-xs text-muted-foreground truncate">
                          <span>{result.type === 'heading' ? 'Section' : 'Page'}</span>
                          {result.heading && (
                            <>
-                             <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                             <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
                              <span className="truncate">{result.heading}</span>
                            </>
                          )}
                          {result.snippet && !result.heading && (
                             <>
-                                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                                <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
                                 <span className="truncate opacity-75">{result.snippet}</span>
                             </>
                          )}
                        </div>
                      </div>
 
-                     {isSelected && <CornerDownLeft className="h-4 w-4 text-blue-500 dark:text-blue-400 animate-in fade-in" />}
+                     {isSelected && <CornerDownLeft className="h-4 w-4 text-link animate-in fade-in" />}
                    </li>
                  );
               })}
@@ -200,11 +200,11 @@ export function Search({ docs }: SearchProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 text-xs text-gray-500 flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-border bg-muted/50 text-xs text-muted-foreground flex items-center justify-between">
            <div className="flex gap-4">
-             <span className="flex items-center gap-1"><kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700">↵</kbd> to select</span>
-             <span className="flex items-center gap-1"><kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700">↑↓</kbd> to navigate</span>
-             <span className="flex items-center gap-1"><kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700">esc</kbd> to close</span>
+             <span className="flex items-center gap-1"><kbd className="font-sans px-1.5 py-0.5 rounded bg-muted border border-border">↵</kbd> to select</span>
+             <span className="flex items-center gap-1"><kbd className="font-sans px-1.5 py-0.5 rounded bg-muted border border-border">↑↓</kbd> to navigate</span>
+             <span className="flex items-center gap-1"><kbd className="font-sans px-1.5 py-0.5 rounded bg-muted border border-border">esc</kbd> to close</span>
            </div>
            <div className="hidden sm:block opacity-50">
              Autopilot Docs

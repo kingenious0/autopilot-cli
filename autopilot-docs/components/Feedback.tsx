@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, Edit, Loader2 } from 'lucide-react';
+import clsx from 'clsx';
 import { ISSUES_URL, DOCS_EDIT_URL } from '@/lib/constants';
 import { usePathname } from 'next/navigation';
 
@@ -65,15 +66,15 @@ ${comment}
 
   if (submitted && !showForm) {
     return (
-      <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="text-sm text-muted-foreground">
           Thanks for your feedback!
         </div>
         <a 
           href={editUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 transition-colors"
+          className="text-sm text-muted-foreground hover:text-link flex items-center gap-2 transition-colors"
         >
           <Edit className="h-4 w-4" />
           <span>Edit this page</span>
@@ -83,32 +84,34 @@ ${comment}
   }
 
   return (
-    <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+    <div className="mt-16 pt-8 border-t border-border">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <span className="text-sm font-medium text-foreground">
               Was this page helpful?
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleFeedback('yes')}
-                className={`p-2 rounded-full transition-colors ${
+                className={clsx(
+                  "p-2 rounded-full transition-colors",
                   feedback === 'yes'
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
+                    ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
                 aria-label="Yes, this page was helpful"
               >
                 <ThumbsUp className="h-4 w-4" />
               </button>
               <button
                 onClick={() => handleFeedback('no')}
-                className={`p-2 rounded-full transition-colors ${
+                className={clsx(
+                  "p-2 rounded-full transition-colors",
                   feedback === 'no'
-                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
+                    ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
                 aria-label="No, this page was not helpful"
               >
                 <ThumbsDown className="h-4 w-4" />
@@ -120,7 +123,7 @@ ${comment}
             href={editUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 transition-colors"
+            className="text-sm text-muted-foreground hover:text-link flex items-center gap-2 transition-colors"
           >
             <Edit className="h-4 w-4" />
             <span>Edit this page</span>
@@ -135,7 +138,7 @@ ${comment}
             <textarea
               id="feedback-comment"
               rows={3}
-              className="w-full text-sm p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none placeholder:text-gray-400"
+              className="w-full text-sm p-3 rounded-lg border border-border bg-background focus:ring-2 focus:ring-link/20 focus:border-link outline-none resize-none placeholder:text-muted-foreground"
               placeholder="Tell us what’s missing or how we can improve (optional)"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -144,13 +147,13 @@ ${comment}
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                className="px-3 py-1.5 text-sm bg-link text-white rounded-md hover:bg-link-hover transition-colors font-medium"
               >
                 Submit Feedback
               </button>
