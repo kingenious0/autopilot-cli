@@ -85,13 +85,13 @@ export function Search({ docs }: SearchProps) {
 
   if (!isOpen) {
     return (
-      <button
+    <button
         onClick={() => setIsOpen(true)}
-        className="group relative flex items-center gap-2 w-full max-w-sm px-4 py-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
+        className="group relative flex items-center gap-2 w-full max-w-sm px-4 py-2 text-sm text-muted-foreground bg-muted/50 border border-border rounded-lg hover:border-foreground/20 transition-colors"
       >
         <SearchIcon className="h-4 w-4" />
         <span className="mr-auto">Search documentation...</span>
-        <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+        <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground bg-muted rounded border border-border">
           <span className="text-xs">⌘</span>K
         </kbd>
       </button>
@@ -109,27 +109,27 @@ export function Search({ docs }: SearchProps) {
 
       {/* Modal */}
       <div 
-        className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-2xl ring-1 ring-gray-900/5 dark:ring-white/10 overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-200"
+        className="relative w-full max-w-2xl bg-background rounded-xl shadow-2xl ring-1 ring-border overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
       >
         {/* Search Input */}
-        <div className="flex items-center px-4 border-b border-gray-200 dark:border-gray-800">
-          <SearchIcon className="h-5 w-5 text-gray-400" />
+        <div className="flex items-center px-4 border-b border-border">
+          <SearchIcon className="h-5 w-5 text-muted-foreground" />
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search documentation..."
-            className="flex-1 h-14 px-4 bg-transparent border-0 focus:ring-0 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 text-lg outline-none"
+            className="flex-1 h-14 px-4 bg-transparent border-0 focus:ring-0 text-foreground placeholder:text-muted-foreground text-lg outline-none"
           />
           <button 
             onClick={() => setIsOpen(false)}
-            className="p-1 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 rounded-md"
+            className="p-1 text-muted-foreground hover:text-foreground rounded-md"
             aria-label="Close search"
           >
-            <kbd className="text-xs border border-gray-200 dark:border-gray-700 rounded px-1.5 py-0.5 font-sans">ESC</kbd>
+            <kbd className="text-xs border border-border rounded px-1.5 py-0.5 font-sans">ESC</kbd>
           </button>
         </div>
 
