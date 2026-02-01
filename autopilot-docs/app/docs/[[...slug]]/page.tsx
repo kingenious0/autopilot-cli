@@ -3,6 +3,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Pre } from '@/components/Pre';
+import { Edit } from 'lucide-react';
 
 export async function generateStaticParams() {
   const files = getDocSlugs();
@@ -67,7 +68,8 @@ export default async function DocPage({
           rel="noopener noreferrer" 
           className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
         >
-          Edit this page on GitHub
+          <Edit className="h-4 w-4" />
+          <span>Edit this page on GitHub</span>
         </a>
       </div>
     </article>

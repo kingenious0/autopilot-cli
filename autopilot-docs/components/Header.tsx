@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Github, Menu } from 'lucide-react';
 import { Search } from './Search';
