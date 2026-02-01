@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://autopilot-cli.com'; // Replace with actual domain
+const BASE_URL = 'https://autopilot-cli.vercel.app';
 
 export default function robots(): MetadataRoute.Robots {
   return {
