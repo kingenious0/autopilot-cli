@@ -1,80 +1,56 @@
-## v0.1.1 – Package Hygiene
-
-### Fixed
-- Resolved npm publish warnings by adding `files` whitelist
-- Renamed package to scoped `@praisetechzw/autopilot`
-- Excluded unnecessary development files from distribution
-
-## v0.1.0 – Initial Release
-
-### Added
-- Intelligent auto commit & push
-- Branch protection (main/master blocked)
-- Remote-ahead safety checks
-- Smart conventional commit messages
-- Per-repo config and ignore rules
-
-Built by Praise Masunga (PraiseTechzw).
 # Changelog
 
 All notable changes to this project will be documented in this file.
-This project follows Semantic Versioning (https://semver.org).
+This project follows [Semantic Versioning](https://semver.org).
 
----
-
-## [0.1.6] – 2026-02-01
+## [0.1.6] - 2026-02-01
 
 ### Added
-- **Professional Commit Messages**: Completely overhauled the commit message generator to provide detailed, human-readable context.
-  - **Smart Grouping**: Changes are now grouped by category (e.g., Core, Components, Docs) for better readability.
-  - **Detailed Breakdowns**: Explicitly lists added, modified, and deleted files with specific context.
-  - **Semantic Headers**: Automatically generates descriptive headers like `feat: update core and components` instead of generic messages.
-- **Enhanced Git Analysis**: Upgraded `getPorcelainStatus` to accurately track file status codes (Added, Modified, Deleted).
+- **Smart Commit Generator 2.0**:
+  - Offline diff parsing using `git diff` (no external APIs).
+  - Conventional Commits compliance (`feat`, `fix`, `docs`, `style`, `test`).
+  - Intelligent scope detection for UI, Theme, Search, and Docs.
+  - Golden Test Suite with 10 fixtures for guaranteed message quality.
+- **Developer Experience**:
+  - Added `npm run verify` script for pre-release checks.
+  - Improved Windows path normalization for reliable cross-platform usage.
 
 ### Changed
-- Refactored `src/core/commit.js` to implement the new categorization and formatting logic.
-- Updated `src/core/git.js` to provide richer status data to the commit generator.
+- **Performance**: Switched from file-based status checks to staged diff analysis for commit messages.
+- **Logic**: Reordered commit type priority (Style > Src > Test > Docs) to prevent misclassification of mixed changes.
+- **Fix**: Resolved issue where new files were incorrectly flagged as `fix` instead of `feat`.
 
-## [0.1.4] – 2026-02-01
+## [0.1.4] - 2026-02-01
 
 ### Fixed
 - **Windows Compatibility**: Fixed critical issue where absolute paths on Windows caused ignore rules to fail.
 - **Watcher Noise**: Fixed infinite commit loops caused by `.vscode/time-analytics.json` and self-logging.
-- Fixed a critical CLI crash where `autopilot start` failed due to miswired Commander action handlers.
-- Improved command registration to ensure all CLI commands are correctly bound and validated at runtime.
-- Prevented undefined command handlers from causing runtime exceptions.
+- **CLI Crash**: Resolved `autopilot start` failure due to miswired Commander action handlers.
 
 ### Added
 - **Release Gates**: Added `npm run verify` and `prepublishOnly` hooks to prevent broken releases.
 - **Integration Tests**: Added full end-to-end test suite using `node:test`.
 - **Smart Init**: `autopilot init` now automatically adds `autopilot.log` to `.gitignore`.
-- Pre-publish verification pipeline to block publishing broken builds.
-- CLI smoke tests to ensure core commands (`init`, `start`, `status`, `doctor`) do not crash.
-- Test-only dry-run mode for watcher to allow safe automated testing.
-- Additional configuration and commit logic unit tests.
+- **Diagnostics**: Added `autopilot doctor` for environment health checks.
 
-### Changed
-- Standardized command exports across all CLI commands.
-- Improved error messages for misconfigured or invalid commands.
-- Strengthened release hygiene and stability guarantees.
-
-### Developer Experience
-- Added `prepublishOnly` guard to prevent accidental publishing of failing builds.
-- Improved Windows compatibility during testing and CLI execution.
-
----
-
-## [0.1.3] – 2026-01-31
+## [0.1.3] - 2026-01-31
 
 ### Added
-- Initial public release of Autopilot CLI.
-- Intelligent Git automation with smart commit messages.
-- Background watcher with debouncing and safety rails.
-- Branch protection and remote-ahead detection.
-- `doctor` command for environment diagnostics.
-- Per-project configuration via `.autopilotrc.json`.
+- **Initial Public Release**: First stable release on npm as `@traisetech/autopilot`.
+- **Core Features**:
+  - Intelligent auto commit & push.
+  - Background watcher with debouncing.
+  - Branch protection (blocks commits to `main`/`master` by default).
+  - Remote-ahead safety checks.
+  - Per-project configuration via `.autopilotrc.json`.
 
----
+## [0.1.1]
 
-## [0.1.0] – Initial Development
-- Core architecture and foundational CLI commands.
+### Changed
+- **Package Hygiene**: Renamed package scope.
+- **Distribution**: Added `files` whitelist to `package.json` to reduce install size.
+
+## [0.1.0]
+
+### Added
+- **Prototype**: Initial development release with core architecture.
