@@ -1,19 +1,18 @@
-'use client';
-
 import Link from 'next/link';
-import { useState } from 'react';
-import { ArrowRight, Terminal, Check, Copy, Play, AlertCircle } from 'lucide-react';
+import { AlertCircle, ArrowRight, Download, Play, Terminal } from 'lucide-react';
 import { FeatureShowcase } from '@/components/FeatureShowcase';
-import { REPO_URL } from '@/lib/constants';
+import { InstallCommand } from '@/components/InstallCommand';
+import { REPO_URL, NPM_URL } from '@/lib/constants';
+import { getWeeklyDownloads, getTotalDownloads } from '@/lib/npm';
 
-export default function Home() {
-  const [copied, setCopied] = useState(false);
+export default async function Home() {
+  const [weeklyDownloads, totalDownloads] = await Promise.all([
+    getWeeklyDownloads(),
+    getTotalDownloads()
+  ]);
 
-  const onCopy = () => {
-    navigator.clipboard.writeText('npm install -g @traisetech/autopilot');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const displayDownloads = totalDownloads || weeklyDownloads || 0;
+  const downloadLabel = totalDownloads ? 'Total Downloads' : 'Weekly Downloads';
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -34,7 +33,7 @@ export default function Home() {
     },
     author: {
       '@type': 'Person',
-      name: 'PraiseTech',
+      name: 'Praise Masunga',
     },
   };
 
@@ -46,6 +45,20 @@ export default function Home() {
       />
       {/* Hero */}
       <section className="py-24 px-4 text-center">
+        {/* Stats Badge */}
+        <div className="flex justify-center mb-8">
+          <a
+            href={NPM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border hover:bg-secondary/80 hover:border-link/30 transition-all cursor-pointer animate-fade-in group"
+          >
+            <Download className="h-3.5 w-3.5 text-link group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-medium text-foreground">{displayDownloads.toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">{downloadLabel}</span>
+          </a>
+        </div>
+
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
           Autopilot CLI — Git automation with safety rails
         </h1>
@@ -70,24 +83,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="max-w-xl mx-auto relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-          <div className="relative bg-gray-900 rounded-lg p-4 text-left shadow-2xl flex items-center justify-between">
-            <div className="flex gap-3 overflow-x-auto">
-              <span className="text-green-400 select-none">$</span>
-              <code className="font-mono text-sm text-gray-100 whitespace-nowrap">
-                npm install -g @traisetech/autopilot
-              </code>
-            </div>
-            <button
-              onClick={onCopy}
-              className="ml-4 p-2 rounded-md hover:bg-gray-800 text-gray-400 hover:text-white transition-colors flex-shrink-0"
-              aria-label="Copy install command"
-            >
-              {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
+        <InstallCommand />
       </section>
 
       {/* Features */}
