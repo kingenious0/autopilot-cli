@@ -126,14 +126,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-gray-200 dark:border-gray-800 mt-auto bg-gray-50 dark:bg-gray-900/30">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-500 dark:text-gray-400 font-medium">
-            Built by <a href="https://github.com/PraiseTechzw" className="text-blue-600 dark:text-blue-400 hover:underline decoration-2 underline-offset-2 transition-colors">Praise Masunga (PraiseTechzw)</a>
-          </p>
-        </div>
-      </footer>
+      {/* Footer is handled by layout */}
     </div>
   );
 }
