@@ -3,48 +3,74 @@ title: Introduction
 description: Intelligent Git automation that commits and pushes your code, so you can focus on building.
 ---
 
-# 🚀 Autopilot
+# What is Autopilot?
 
-**Intelligent Git automation that commits and pushes your code, so you can focus on building.**
+**Autopilot CLI** is a background daemon that automatically watches your project files and handles Git operations for you. It intelligently batches changes, generates conventional commit messages, and syncs with your remote repository—all without interrupting your flow.
 
-Built by [Praise Masunga](https://github.com/PraiseTechzw) (PraiseTechzw).
+It's designed for:
+- 🚀 **Solo Developers** who want to focus on coding, not committing.
+- 🛡️ **Safety-Conscious** users who never want to lose work.
+- ⚡ **Rapid Prototyping** where speed matters more than granular commit history.
 
-## 🎯 Why Autopilot?
+---
 
-Autopilot is designed for developers who want to stay in the flow. It solves manual Git workflow fatigue by handling the repetitive cycle of staging, committing, and pushing changes, allowing you to focus entirely on writing code.
+## Quick Install
 
-### ❌ Before Autopilot
+Install Autopilot globally using npm:
 
 ```bash
-# Every. Single. Time.
-git add .
-git commit -m "update stuff"
-git push
-
-# Repeat 50+ times a day...
-# Lose focus on coding
-# Forget to commit
-# Inconsistent messages
+npm install -g @traisetech/autopilot
 ```
 
-### ✅ With Autopilot
+---
 
+## 60-Second Quick Start
+
+Follow these four commands to get up and running:
+
+### 1. Initialize
+Navigate to your project root and generate the configuration file:
 ```bash
-# One time setup
 autopilot init
-autopilot start
-
-# That's it! 
-# Focus on coding
-# Auto-commits with smart messages
-# Never lose work again
 ```
 
-## ✨ Features
+### 2. Start Watching
+Start the background daemon. Autopilot will now monitor your files and sync changes automatically.
+```bash
+autopilot start
+```
 
-- **🧠 Smart Commits**: Generates professional conventional commit messages automatically.
-- **⚡ Watcher Engine**: Real-time file monitoring with smart debouncing using `chokidar`.
-- **🛡️ Safety First**: Blocks commits on protected branches and checks remote status.
-- **🔄 Automated Flow**: Fetches, stages, commits, and pushes (optional) automatically.
-- **⚙️ Zero Config**: Works out of the box, but fully configurable via `.autopilotrc.json`.
-- **🩺 Self-Healing**: Includes a `doctor` command to diagnose and fix issues.
+### 3. Check Status
+Verify that the watcher is running and see recent activity:
+```bash
+autopilot status
+```
+
+### 4. Stop
+When you're done for the day (or need to switch branches manually):
+```bash
+autopilot stop
+```
+
+---
+
+## Explore Documentation
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose mt-8">
+  <a href="/docs/installation" className="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all bg-white dark:bg-gray-900">
+    <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Installation</h3>
+    <p className="text-sm text-gray-500 dark:text-gray-400">Detailed installation guides for all platforms.</p>
+  </a>
+  <a href="/docs/configuration" className="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all bg-white dark:bg-gray-900">
+    <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Configuration</h3>
+    <p className="text-sm text-gray-500 dark:text-gray-400">Customize debounce timers, ignored files, and more.</p>
+  </a>
+  <a href="/docs/commands" className="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all bg-white dark:bg-gray-900">
+    <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">CLI Reference</h3>
+    <p className="text-sm text-gray-500 dark:text-gray-400">Full list of commands and flags.</p>
+  </a>
+  <a href="/docs/troubleshooting" className="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all bg-white dark:bg-gray-900">
+    <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Troubleshooting</h3>
+    <p className="text-sm text-gray-500 dark:text-gray-400">Common issues and how to resolve them.</p>
+  </a>
+</div>
