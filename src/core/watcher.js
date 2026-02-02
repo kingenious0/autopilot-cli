@@ -145,6 +145,51 @@ class Watcher {
   }
 
   /**
+   * Ask user for approval
+   */
+  async askApproval(generatedMessage) {
+    logger.section('🤖 AI Generated Commit Message');
+    console.log(generatedMessage);
+    logger.section('--------------------------------');
+    
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    const ask = () => new Promise(resolve => {
+      rl.question('👉 Approve? (Y/n/e): ', answer => resolve(answer.trim().toLowerCase()));
+    });
+
+    const edit = () => new Promise(resolve => {
+        rl.question('✏️  Enter new message: ', answer => resolve(answer.trim()));
+    });
+
+    try {
+      while (true) {
+        const answer = await ask();
+        
+        if (answer === '' || answer === 'y' || answer === 'yes') {
+          return { approved: true, message: generatedMessage };
+        }
+        
+        if (answer === 'n' || answer === 'no') {
+          return { approved: false };
+        }
+        
+        if (answer === 'e' || answer === 'edit') {
+          const newMessage = await edit();
+          if (newMessage) {
+             return { approved: true, message: newMessage };
+          }
+        }
+      }
+    } finally {
+      rl.close();
+    }
+  }
+
+  /**
    * Handle filesystem events
    */
   onFsEvent(type, filePath) {
