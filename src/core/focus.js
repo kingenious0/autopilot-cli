@@ -156,6 +156,19 @@ class FocusEngine {
     }
   }
 
+  async appendLog(type, data) {
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      type,
+      ...data
+    };
+    try {
+      await fs.appendFile(this.logFile, JSON.stringify(logEntry) + '\n');
+    } catch (err) {
+      logger.error(`Failed to write focus log: ${err.message}`);
+    }
+  }
+
   /**
    * Get current focus stats
    */

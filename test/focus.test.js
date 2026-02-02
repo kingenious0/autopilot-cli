@@ -3,23 +3,21 @@ const assert = require('node:assert');
 const path = require('path');
 const fs = require('fs-extra');
 
-// Mock dependencies
-// Note: In node:test, mocking modules is tricky without a loader or just overwriting.
-// Since we are testing a class that imports logger and fs, we need to be careful.
-// A simpler way for unit testing `FocusEngine` is to check its internal state and side effects if we can injection-mock.
-// But `FocusEngine` requires `../utils/logger`. 
-// We will mock `fs.appendFile` since it's used for logging.
-
 describe('Focus Engine', () => {
   let FocusEngine;
   let engine;
   let mockLog = [];
+  let currentTime = 1000000;
   
   beforeEach(() => {
     // Reset mocks
     mockLog = [];
+    currentTime = 1000000;
     
-    // Mock logger
+    // Mock Date.now
+    mock.method(Date, 'now', () => currentTime);
+    
+    // Mock console
     mock.method(console, 'log', () => {});
     mock.method(console, 'warn', (msg) => mockLog.push({ type: 'warn', msg }));
     mock.method(console, 'error', (msg) => mockLog.push({ type: 'error', msg }));
@@ -30,7 +28,10 @@ describe('Focus Engine', () => {
         return Promise.resolve();
     });
 
+    // Re-require to ensure fresh start if possible, though constructor does most work
+    // Note: Node's require cache might persist FocusEngine class, but we create new instance.
     FocusEngine = require('../src/core/focus');
+    
     engine = new FocusEngine('/tmp/repo', { 
         focus: { 
             activeThresholdSeconds: 1, // Short for testing
@@ -47,19 +48,13 @@ describe('Focus Engine', () => {
   it('should track active time for files', () => {
     const file = 'src/test.js';
     
-    // First event
+    // First event (time 1000000)
     engine.onFileEvent(file);
     let stats = engine.getStats();
     assert.strictEqual(stats.fileBreakdown[file].activeMs, 0);
 
-    // Second event (within threshold)
-    // We need to advance time. Since FocusEngine uses Date.now(), we can mock it or just use setTimeout.
-    // Mocking Date.now() is cleaner.
-    const start = 1000000;
-    mock.method(Date, 'now', () => start);
-    engine.onFileEvent(file); // Reset lastEvent to start
-
-    mock.method(Date, 'now', () => start + 500); // +500ms
+    // Second event (time 1000500)
+    currentTime += 500;
     engine.onFileEvent(file);
     
     stats = engine.getStats();
@@ -73,16 +68,17 @@ describe('Focus Engine', () => {
   });
 
   it('should trigger nudges when pending time exceeds threshold', () => {
-    // Set threshold low
+    // Increase active threshold for this test so 1500ms counts as active
+    engine.config.activeThresholdSeconds = 2;
+    
+    // Set threshold low (e.g. 1000ms)
     engine.nudgeThresholdMs = 1000; 
     
-    const start = 1000000;
-    mock.method(Date, 'now', () => start);
-    engine.onFileEvent('file.js');
+    engine.onFileEvent('file.js'); // time 1000000
 
-    // Advance 1500ms
-    mock.method(Date, 'now', () => start + 1500);
-    engine.onFileEvent('file.js');
+    // Advance 1500ms (still active since < 2000ms)
+    currentTime += 1500;
+    engine.onFileEvent('file.js'); // time 10001500
 
     // Check logs for warning
     const warning = mockLog.find(l => l.type === 'warn' && l.msg.includes('[Nudge]'));
@@ -94,13 +90,11 @@ describe('Focus Engine', () => {
   });
 
   it('should log session start on long gap', () => {
-     const start = 1000000;
-     mock.method(Date, 'now', () => start);
-     engine.onFileEvent('file.js');
+     engine.onFileEvent('file.js'); // time 1000000
 
      // Advance 10 seconds (gap > 5s timeout)
-     mock.method(Date, 'now', () => start + 10000);
-     engine.onFileEvent('file.js');
+     currentTime += 10000;
+     engine.onFileEvent('file.js'); // time 1010000
 
      const sessionLog = mockLog.find(l => l.type === 'file' && l.data.type === 'FOCUS_SESSION_START');
      assert.ok(sessionLog, 'Should log new session start');
