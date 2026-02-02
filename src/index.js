@@ -40,6 +40,11 @@ function run() {
     .action(doctor);
 
   program
+    .command('insights')
+    .description('View productivity insights and focus analytics')
+    .action(insights);
+
+  program
     .addHelpText('after', '\nBuilt by Praise Masunga (PraiseTechzw)')
     .addHelpCommand(true, 'Show help for command')
     .showHelpAfterError('(add --help for command information)');

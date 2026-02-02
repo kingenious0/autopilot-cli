@@ -25,6 +25,16 @@ class FocusEngine {
     
     this.activeFile = null;
     this.microGoals = [];
+    this.lastLogTime = 0;
+    this.msSinceLastCommit = 0;
+    this.nudgeThresholdMs = 500000; // 500,000 ms as requested
+    this.nextNudgeMs = this.nudgeThresholdMs;
+  }
+
+  onCommit() {
+    this.msSinceLastCommit = 0;
+    this.nextNudgeMs = this.nudgeThresholdMs;
+    this.appendLog('FOCUS_COMMIT', { msSinceLastCommit: this.msSinceLastCommit });
   }
 
   updateConfig(newConfig) {
@@ -64,6 +74,17 @@ class FocusEngine {
       // Continuous activity
       fileStat.activeMs += delta;
       this.stats.totalActiveMs += globalDelta; // Add to global active time
+      
+      // Heartbeat log every 5 minutes
+      if (now - this.lastLogTime > 300000) {
+        this.appendLog('FOCUS_HEARTBEAT', { 
+          file: filePath, 
+          activeMs: fileStat.activeMs,
+          totalActiveMs: this.stats.totalActiveMs 
+        });
+        this.lastLogTime = now;
+      }
+
     } else if (delta < sessionTimeoutMs) {
       // Idle period within session
       fileStat.idleMs += delta;
@@ -73,6 +94,17 @@ class FocusEngine {
       fileStat.sessionCount++;
       // We don't count the huge gap as idle time, it's just "away" time
       logger.debug(`[Focus] New session started for ${filePath}`);
+      this.appendLog('FOCUS_SESSION_START', { file: filePath });
+      this.lastLogTime = now;
+    }
+
+    // Context switch
+    if (this.activeFile && this.activeFile !== filePath) {
+        this.appendLog('FOCUS_SWITCH', { 
+            from: this.activeFile, 
+            to: filePath,
+            prevFileActiveMs: this.stats.files[this.activeFile].activeMs
+        });
     }
 
     fileStat.lastEvent = now;

@@ -261,6 +261,7 @@ class Watcher {
 
       await git.commit(this.repoPath, message);
       this.lastCommitAt = Date.now();
+      this.focusEngine.onCommit();
       logger.success('Commit done');
 
       // 7. Auto-push
