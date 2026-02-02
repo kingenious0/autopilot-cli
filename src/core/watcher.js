@@ -260,7 +260,18 @@ class Watcher {
 
       if (this.config?.commitMessageMode !== 'simple') {
         const diff = await git.getDiff(this.repoPath, true); // Staged diff
-        message = generateCommitMessage(changedFiles, diff);
+        message = await generateCommitMessage(changedFiles, diff, this.config);
+      }
+
+      // Interactive Review
+      if (this.config?.ai?.interactive) {
+        logger.info('Waiting for user approval...');
+        const approval = await this.askApproval(message);
+        if (!approval.approved) {
+          logger.warn('Commit skipped by user.');
+          return;
+        }
+        message = approval.message;
       }
 
       await git.commit(this.repoPath, message);

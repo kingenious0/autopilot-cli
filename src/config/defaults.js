@@ -14,7 +14,8 @@ const DEFAULT_CONFIG = {
   ai: {
     enabled: false,
     apiKey: '',
-    model: 'gemini-pro'
+    model: 'gemini-pro',
+    interactive: false
   }
 };
 
