@@ -6,6 +6,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const chokidar = require('chokidar');
+const readline = require('readline');
 const logger = require('../utils/logger');
 const git = require('./git');
 const FocusEngine = require('./focus');
@@ -265,7 +266,6 @@ class Watcher {
 
       // Interactive Review
       if (this.config?.ai?.interactive) {
-        logger.info('Waiting for user approval...');
         const approval = await this.askApproval(message);
         if (!approval.approved) {
           logger.warn('Commit skipped by user.');

@@ -3,45 +3,45 @@ const assert = require('node:assert');
 const { generateCommitMessage } = require('../src/core/commit');
 
 describe('Commit Message Generator', () => {
-  it('should generate a feat: message for new source files', () => {
+  it('should generate a feat: message for new source files', async () => {
     const files = [
       { status: 'M', file: 'src/core/watcher.js' },
       { status: 'A', file: 'src/commands/start.js' }
     ];
-    const msg = generateCommitMessage(files);
+    const msg = await generateCommitMessage(files);
     assert.match(msg, /^feat(\(.*\))?: /);
   });
 
-  it('should generate a fix: message for bug fixes', () => {
+  it('should generate a fix: message for bug fixes', async () => {
     const files = [{ status: 'M', file: 'src/fix-bug.js' }];
-    const msg = generateCommitMessage(files);
+    const msg = await generateCommitMessage(files);
     assert.match(msg, /^fix(\(.*\))?: /);
   });
 
-  it('should generate a docs: message for documentation changes', () => {
+  it('should generate a docs: message for documentation changes', async () => {
     const files = [
       { status: 'M', file: 'README.md' },
       { status: 'A', file: 'docs/api.md' }
     ];
-    const msg = generateCommitMessage(files);
+    const msg = await generateCommitMessage(files);
     assert.match(msg, /^docs(\(.*\))?: /);
   });
 
-  it('should generate a chore: message for config files', () => {
+  it('should generate a chore: message for config files', async () => {
     const files = [
       { status: 'M', file: 'package.json' },
       { status: 'M', file: '.gitignore' }
     ];
-    const msg = generateCommitMessage(files);
+    const msg = await generateCommitMessage(files);
     assert.match(msg, /^chore(\(.*\))?: /);
   });
 
-  it('should handle mixed file types with priority', () => {
+  it('should handle mixed file types with priority', async () => {
     const files = [
       { status: 'M', file: 'src/index.js' },
       { status: 'M', file: 'README.md' }
     ];
-    const msg = generateCommitMessage(files);
+    const msg = await generateCommitMessage(files);
     // Source code usually takes precedence
     assert.match(msg, /^(feat|fix|refactor|update)(\(.*\))?: /);
   });
