@@ -5,6 +5,11 @@ const initRepo = require('../src/commands/init');
 const startWatcher = require('../src/commands/start');
 const stopWatcher = require('../src/commands/stop');
 const statusWatcher = require('../src/commands/status');
+const undoCommand = require('../src/commands/undo');
+const pauseCommand = require('../src/commands/pause');
+const resumeCommand = require('../src/commands/resume');
+const runDashboard = require('../src/commands/dashboard');
+const { insights } = require('../src/commands/insights');
 const doctor = require('../src/commands/doctor');
 const pkg = require('../package.json');
 const logger = require('../src/utils/logger');
@@ -16,6 +21,11 @@ const commands = {
   start: startWatcher,
   stop: stopWatcher,
   status: statusWatcher,
+  undo: undoCommand,
+  pause: pauseCommand,
+  resume: resumeCommand,
+  dashboard: runDashboard,
+  insights: insights,
   doctor: doctor
 };
 
@@ -55,6 +65,34 @@ program
   .command('status')
   .description('Show autopilot watcher status')
   .action(statusWatcher);
+
+program
+  .command('undo')
+  .description('Undo the last Autopilot commit')
+  .option('-c, --count <n>', 'Number of commits to undo', '1')
+  .action(undoCommand);
+
+program
+  .command('pause [reason]')
+  .description('Pause Autopilot watcher')
+  .action(pauseCommand);
+
+program
+  .command('resume')
+  .description('Resume Autopilot watcher')
+  .action(resumeCommand);
+
+program
+  .command('dashboard')
+  .description('View real-time Autopilot dashboard')
+  .action(runDashboard);
+
+program
+  .command('insights')
+  .description('View productivity insights and focus analytics')
+  .option('-f, --format <type>', 'Output format (json, text)', 'text')
+  .option('-e, --export <type>', 'Export insights (csv)')
+  .action(insights);
 
 program
   .command('doctor')
