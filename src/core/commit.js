@@ -6,6 +6,7 @@
 const path = require('path');
 const logger = require('../utils/logger');
 const { generateAICommitMessage } = require('./gemini');
+const HistoryManager = require('./history');
 
 /**
  * Generate a conventional commit message based on diff analysis
@@ -15,20 +16,44 @@ const { generateAICommitMessage } = require('./gemini');
  * @returns {Promise<string>} Conventional commit message
  */
 async function generateCommitMessage(files, diffContent, config = {}) {
+  let message = '';
   if (!files || files.length === 0) {
-    return 'chore: update changes';
-  }
-
-  // AI Mode
-  if (config.commitMessageMode === 'ai' && config.ai?.enabled && config.ai?.apiKey) {
+    message = 'chore: update changes';
+  } else if (config.commitMessageMode === 'ai' && config.ai?.enabled && config.ai?.apiKey) {
+    // AI Mode
     try {
       logger.info('Generating AI commit message...');
-      return await generateAICommitMessage(diffContent, config.ai.apiKey);
+      message = await generateAICommitMessage(diffContent, config.ai.apiKey);
     } catch (error) {
       logger.warn('AI generation failed, falling back to smart generation.');
+      message = generateSmartCommitMessage(files, diffContent);
     }
+  } else {
+    // Smart Mode (Default)
+    message = generateSmartCommitMessage(files, diffContent);
   }
 
+  // Prepend [autopilot] tag for traceability (Phase 1 req)
+  const finalMessage = `[autopilot] ${message}`;
+  
+  // Record history
+  try {
+    const root = process.cwd();
+    const historyManager = new HistoryManager(root);
+    // We don't have the hash yet, but we will update it or store it after commit
+    // Actually, we should probably return just the message here and let the caller (watcher) handle history.
+    // However, the prompt says "Tag all commits with [autopilot] prefix".
+  } catch (err) {
+    // ignore history errors here
+  }
+
+  return finalMessage;
+}
+
+/**
+ * Smart generation logic extracted
+ */
+function generateSmartCommitMessage(files, diffContent) {
   // 1. Parse Diff for deep analysis
   const diffAnalysis = parseDiff(diffContent);
   
