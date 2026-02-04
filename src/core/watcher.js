@@ -14,6 +14,9 @@ const { generateCommitMessage } = require('./commit');
 const { savePid, removePid, registerProcessHandlers } = require('../utils/process');
 const { loadConfig } = require('../config/loader');
 const { readIgnoreFile, createIgnoredFilter, normalizePath } = require('../config/ignore');
+const HistoryManager = require('./history');
+const StateManager = require('./state');
+const { validateBeforeCommit, checkTeamStatus } = require('./safety');
 
 class Watcher {
   constructor(repoPath) {
@@ -30,6 +33,8 @@ class Watcher {
     this.ignorePatterns = [];
     this.ignoredFilter = null;
     this.focusEngine = new FocusEngine(repoPath);
+    this.historyManager = new HistoryManager(repoPath);
+    this.stateManager = new StateManager(repoPath);
   }
 
   logVerbose(message) {
@@ -269,6 +274,13 @@ class Watcher {
     try {
       logger.debug('Checking git status...');
 
+      // 0. Pause Check
+      if (this.stateManager.isPaused()) {
+        const state = this.stateManager.getState();
+        logger.debug(`Skipping processing: Autopilot is paused (${state.reason})`);
+        return;
+      }
+
       // 1. Min interval check
       const now = Date.now();
       const minInterval = (this.config?.minSecondsBetweenCommits || 30) * 1000;
@@ -293,15 +305,24 @@ class Watcher {
         return;
       }
 
-      // 4. Safety: Remote check (fetch -> behind?)
-      logger.debug('Checking remote status...');
-      const remoteStatus = await git.isRemoteAhead(this.repoPath);
-      if (remoteStatus.behind) {
-        logger.warn('Skip commit: Local branch is behind remote. Please pull changes.');
+      // 4. Safety: Team Mode & Remote check
+      logger.debug('Checking team/remote status...');
+      const teamStatus = await checkTeamStatus(this.repoPath, this.config);
+      if (!teamStatus.ok) {
+        logger.warn('Skip commit: Team check failed (Remote ahead or conflict).');
         return;
       }
 
-      // 5. Safety: Custom checks
+      // 5. Safety: Pre-commit checks (Validation)
+      logger.debug('Running pre-commit validation...');
+      const validation = await validateBeforeCommit(this.repoPath, this.config);
+      if (!validation.ok) {
+        logger.warn('Skip commit: Pre-commit validation failed:');
+        validation.errors.forEach(e => logger.error(`- ${e}`));
+        return;
+      }
+
+      // 6. Safety: Custom checks (Legacy)
       if (this.config?.requireChecks) {
         const checksPassed = await this.runChecks();
         if (!checksPassed) {
@@ -310,7 +331,7 @@ class Watcher {
         }
       }
 
-      // 6. Commit
+      // 7. Commit
       logger.info('Committing changes...');
       
       // Add all changes
@@ -335,10 +356,32 @@ class Watcher {
         message = approval.message;
       }
 
-      await git.commit(this.repoPath, message);
-      this.lastCommitAt = Date.now();
-      this.focusEngine.onCommit();
-      logger.success('Commit complete');
+      const commitResult = await git.commit(this.repoPath, message);
+      
+      if (commitResult.ok) {
+        this.lastCommitAt = Date.now();
+        this.focusEngine.onCommit();
+        
+        // Phase 1: Record History
+        try {
+          // We need the hash of the commit we just made
+          const hash = await git.getLatestCommitHash(this.repoPath);
+          if (hash) {
+            this.historyManager.addCommit({
+              hash,
+              message,
+              files: changedFiles.map(f => f.file)
+            });
+          }
+        } catch (err) {
+          logger.error(`Failed to record history: ${err.message}`);
+        }
+        
+        logger.success('Commit complete');
+      } else {
+        logger.error(`Commit failed: ${commitResult.stderr}`);
+        return;
+      }
 
       // 7. Auto-push
       if (this.config?.autoPush) {

@@ -167,6 +167,65 @@ async function getDiff(root, staged = true) {
   }
 }
 
+/**
+ * Revert a specific commit
+ * @param {string} root - Repository root path
+ * @param {string} hash - Commit hash
+ * @returns {Promise<{ok: boolean, stdout: string, stderr: string}>} Result object
+ */
+async function revert(root, hash) {
+  try {
+    const { stdout, stderr } = await execa('git', ['revert', '--no-edit', hash], { cwd: root });
+    return { ok: true, stdout, stderr };
+  } catch (error) {
+    return { ok: false, stdout: '', stderr: error.message };
+  }
+}
+
+/**
+ * Reset to a specific commit (soft reset)
+ * @param {string} root - Repository root path
+ * @param {string} target - Target commitish (e.g. HEAD~1)
+ * @returns {Promise<{ok: boolean, stdout: string, stderr: string}>} Result object
+ */
+async function resetSoft(root, target) {
+  try {
+    const { stdout, stderr } = await execa('git', ['reset', '--soft', target], { cwd: root });
+    return { ok: true, stdout, stderr };
+  } catch (error) {
+    return { ok: false, stdout: '', stderr: error.message };
+  }
+}
+
+/**
+ * Check if a commit exists
+ * @param {string} root - Repository root path
+ * @param {string} hash - Commit hash
+ * @returns {Promise<boolean>} True if exists
+ */
+async function commitExists(root, hash) {
+  try {
+    await execa('git', ['cat-file', '-e', `${hash}^{commit}`], { cwd: root });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Get the latest commit hash
+ * @param {string} root - Repository root path
+ * @returns {Promise<string|null>} Commit hash or null
+ */
+async function getLatestCommitHash(root) {
+  try {
+    const { stdout } = await execa('git', ['rev-parse', 'HEAD'], { cwd: root });
+    return stdout.trim();
+  } catch (error) {
+    return null;
+  }
+}
+
 module.exports = {
   getBranch,
   hasChanges,
@@ -176,5 +235,9 @@ module.exports = {
   fetch,
   isRemoteAhead,
   push,
-  getDiff
+  getDiff,
+  revert,
+  resetSoft,
+  commitExists,
+  getLatestCommitHash
 };

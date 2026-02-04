@@ -16,6 +16,18 @@ const DEFAULT_CONFIG = {
     apiKey: '',
     model: 'gemini-pro',
     interactive: false
+  },
+  // Phase 1: Team Mode
+  teamMode: false,
+  pullBeforePush: true,
+  conflictStrategy: 'abort',
+  maxUnpushedCommits: 5,
+  // Phase 1: Pre-commit checks
+  preCommitChecks: {
+    secrets: true,
+    fileSize: true,
+    lint: false,
+    test: null
   }
 };
 
