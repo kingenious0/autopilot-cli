@@ -10,6 +10,7 @@ const pauseCommand = require('../src/commands/pause');
 const resumeCommand = require('../src/commands/resume');
 const { insights } = require('../src/commands/insights');
 const doctor = require('../src/commands/doctor');
+const presetCommand = require('../src/commands/preset');
 const pkg = require('../package.json');
 const logger = require('../src/utils/logger');
 const { checkForUpdate } = require('../src/utils/update-check');
@@ -24,7 +25,8 @@ const commands = {
   pause: pauseCommand,
   resume: resumeCommand,
   insights: insights,
-  doctor: doctor
+  doctor: doctor,
+  preset: presetCommand
 };
 
 // Runtime assertion to prevent wiring errors
@@ -98,6 +100,11 @@ program
   .option('-f, --format <type>', 'Output format (json, text)', 'text')
   .option('-e, --export <type>', 'Export insights (csv)')
   .action(insights);
+
+program
+  .command('preset [action] [name]')
+  .description('Manage workflow presets (list, apply)')
+  .action(presetCommand);
 
 program
   .command('doctor')
