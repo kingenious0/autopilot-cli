@@ -48,34 +48,51 @@ test('Integration: Watcher detects changes and commits', { timeout: 30000 }, asy
   // We need to override reloadConfig so it doesn't overwrite our mock
   watcher.reloadConfig = async () => {};
   
-  // Start watcher (will run for 5s then stop)
-  const watcherPromise = watcher.start();
+  // Mock process.exit to prevent killing the test runner
+  const originalExit = process.exit;
+  let exitCode = null;
+  process.exit = (code) => {
+    exitCode = code;
+    console.log(`Mock process.exit called with code ${code}`);
+  };
 
-  // Wait a bit for watcher to initialize
-  await new Promise(r => setTimeout(r, 1000));
+  try {
+    // Start watcher (will run for 5s then stop)
+    await watcher.start();
 
-  // 1. Spam ignored file
-  console.log('Spamming ignored file...');
-  await fs.writeFile(IGNORED_FILE, '{"data": 1}');
-  await new Promise(r => setTimeout(r, 100));
-  await fs.writeFile(IGNORED_FILE, '{"data": 2}');
+    // Wait a bit for watcher to initialize
+    await new Promise(r => setTimeout(r, 1000));
 
-  // 2. Modify tracked file
-  console.log('Modifying README...');
-  await fs.writeFile(TEST_README, '# Test Repo\nModified content');
+    // 1. Spam ignored file
+    console.log('Spamming ignored file...');
+    await fs.writeFile(IGNORED_FILE, '{"data": 1}');
+    await new Promise(r => setTimeout(r, 100));
+    await fs.writeFile(IGNORED_FILE, '{"data": 2}');
 
-  // Wait for watcher to finish
-  await watcherPromise;
+    // 2. Modify tracked file
+    console.log('Modifying README...');
+    await fs.writeFile(TEST_README, '# Test Repo\nModified content');
 
-  // Verify
-  const { stdout: log } = await execa('git', ['log', '--oneline'], { cwd: TEST_DIR });
-  console.log('Git Log:', log);
+    // Wait for the test duration (plus a buffer) for the watcher to process and "exit"
+    console.log('Waiting for watcher to process...');
+    await new Promise(r => setTimeout(r, 6000)); // 5000 duration + 1000 buffer
 
-  // Assertions
-  assert.ok(log.includes('chore: auto-commit changes'), 'Should have auto-commit message');
-  const commitCount = log.trim().split('\n').length;
-  assert.ok(commitCount >= 2, 'Should have at least 2 commits (initial + auto)');
-  
-  // Cleanup
-  await fs.remove(TEST_DIR);
+    // Verify
+    const { stdout: log } = await execa('git', ['log', '--oneline'], { cwd: TEST_DIR });
+    console.log('Git Log:', log);
+
+    // Assertions
+    assert.ok(log.includes('chore: auto-commit changes'), 'Should have auto-commit message');
+    const commitCount = log.trim().split('\n').length;
+    assert.ok(commitCount >= 2, 'Should have at least 2 commits (initial + auto)');
+    
+    // Check if exit was called
+    assert.strictEqual(exitCode, 0, 'Watcher should have called process.exit(0)');
+
+  } finally {
+    // Restore process.exit
+    process.exit = originalExit;
+    // Cleanup
+    await fs.remove(TEST_DIR);
+  }
 });

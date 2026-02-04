@@ -43,6 +43,17 @@ class FocusEngine {
     this.appendLog('FOCUS_COMMIT', { msSinceLastCommit: this.msSinceLastCommit });
   }
 
+  async stop() {
+    // Clean up timers/intervals if any
+    if (this.integrationManager) {
+        // this.integrationManager.stop(); // If manager needs stop
+    }
+    this.appendLog('FOCUS_SESSION_END', { 
+        totalActiveMs: this.stats.totalActiveMs,
+        durationMs: Date.now() - this.stats.currentSessionStart 
+    });
+  }
+
   updateConfig(newConfig) {
     if (newConfig && newConfig.focus) {
       this.config = { ...this.config, ...newConfig.focus };

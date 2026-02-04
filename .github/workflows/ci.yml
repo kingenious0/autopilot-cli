@@ -2,17 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
-  build:
-    name: Build & Test
+  test:
+    name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x]
 
     steps:
@@ -27,8 +27,8 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Run Tests
-      run: npm run test
-      
-    - name: Verify
+    - name: Verify (Lint + Test + Doctor)
       run: npm run verify
+      env:
+        CI: true
+        AUTOPILOT_TEST_MODE: 1
