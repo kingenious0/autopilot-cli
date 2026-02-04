@@ -132,40 +132,34 @@ async function initRepo() {
     // Create files
     await createIgnoreFile(repoPath);
 
-    // Prompt for AI Setup
-    let configOverrides = {};
-    const useAi = await askQuestion('🤖 Enable AI-powered commit messages with Gemini? (y/N): ');
+    const teamMode = await askQuestion('Enable team mode? (pull before push) [y/N]: ');
+    const useTeamMode = teamMode.toLowerCase() === 'y';
+
+    // Phase 3: AI Configuration
+    const enableAI = await askQuestion('Enable AI commit messages (Gemini)? [y/N]: ');
+    const useAI = enableAI.toLowerCase() === 'y';
     
-    if (useAi.toLowerCase().startsWith('y')) {
-      const apiKey = await askQuestion('🔑 Enter your Google Gemini API Key: ');
-      if (apiKey && apiKey.trim()) {
-        const { validateApiKey } = require('../core/gemini');
-        logger.info('Validating API Key...');
-        
-        const isValid = await validateApiKey(apiKey.trim());
-        
-        if (isValid) {
-          logger.success('API Key validated successfully!');
-          
-          const interactive = await askQuestion('📝 Do you want to review/edit messages before committing? (y/N): ');
-          
-          configOverrides = {
-            commitMessageMode: 'ai',
-            ai: {
-              enabled: true,
-              apiKey: apiKey.trim(),
-              model: 'gemini-pro',
-              interactive: interactive.toLowerCase().startsWith('y')
-            }
-          };
-        } else {
-          logger.warn('⚠️  Invalid API Key. AI features will be disabled.');
-          logger.info('You can update .autopilotrc.json later with a valid key.');
-        }
-      }
+    let apiKey = '';
+    let interactive = false;
+    
+    if (useAI) {
+      apiKey = await askQuestion('Enter your Google Gemini API Key: ');
+      const interactiveAns = await askQuestion('Review AI messages before committing? [y/N]: ');
+      interactive = interactiveAns.toLowerCase() === 'y';
     }
 
-    await createConfigFile(repoPath, configOverrides);
+    const overrides = {
+      teamMode: useTeamMode,
+      ai: {
+        enabled: useAI,
+        apiKey: apiKey,
+        model: 'gemini-pro',
+        interactive: interactive
+      },
+      commitMessageMode: useAI ? 'ai' : 'smart'
+    };
+
+    const created = await createConfigFile(repoPath, overrides);
     await updateGitIgnore(repoPath);
 
     logger.section('✨ Initialization Complete');
