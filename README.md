@@ -216,6 +216,9 @@ To verify that Autopilot is installed and working correctly on your system:
    autopilot stop
    ```
 
+For detailed guides, visit the [Documentation Site](https://autopilot-docs.vercel.app).
+If you encounter bugs, please [File an Issue](https://github.com/PraiseTechzw/autopilot-cli/issues).
+
 ---
 
 ## 🔧 Troubleshooting

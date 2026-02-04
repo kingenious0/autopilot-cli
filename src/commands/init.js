@@ -5,9 +5,27 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const readline = require('readline');
 const logger = require('../utils/logger');
 const { getConfigPath, getIgnorePath, getGitPath } = require('../utils/paths');
 const { DEFAULT_CONFIG, DEFAULT_IGNORE_PATTERNS } = require('../config/defaults');
+
+function askQuestion(query) {
+  if (!process.stdin.isTTY) {
+      return Promise.resolve(''); // Non-interactive fallback
+  }
+  
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise(resolve => rl.question(query, ans => {
+    rl.close();
+    resolve(ans);
+  }));
+}
+
 
 /**
  * Verify current directory is a git repository
@@ -40,9 +58,10 @@ async function createIgnoreFile(repoPath) {
 /**
  * Create .autopilotrc.json file with default configuration
  * @param {string} repoPath - Repository path
+ * @param {object} [overrides] - Configuration overrides
  * @returns {Promise<boolean>} True if created, false if already exists
  */
-async function createConfigFile(repoPath) {
+async function createConfigFile(repoPath, overrides = {}) {
   const configPath = getConfigPath(repoPath);
   
   if (fs.existsSync(configPath)) {
@@ -50,7 +69,8 @@ async function createConfigFile(repoPath) {
     return false;
   }
 
-  await fs.writeJson(configPath, DEFAULT_CONFIG, { spaces: 2 });
+  const finalConfig = { ...DEFAULT_CONFIG, ...overrides };
+  await fs.writeJson(configPath, finalConfig, { spaces: 2 });
   logger.success('Created .autopilotrc.json');
   return true;
 }
