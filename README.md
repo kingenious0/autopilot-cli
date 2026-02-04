@@ -188,39 +188,6 @@ Autopilot includes several safety mechanisms to prevent accidents:
 
 ---
 
-## 🧪 Verification (Smoke Test)
-
-To verify that Autopilot is installed and working correctly on your system:
-
-1. **Check Version**:
-   ```bash
-   autopilot --version
-   ```
-
-2. **Run Doctor**:
-   ```bash
-   autopilot doctor
-   ```
-   This will check your Git environment, permissions, and configuration.
-
-3. **Test Run**:
-   Create a temporary directory and test:
-   ```bash
-   mkdir test-repo && cd test-repo
-   git init
-   autopilot init
-   autopilot start
-   echo "test" > test.txt
-   # Wait 5-10 seconds...
-   git log
-   autopilot stop
-   ```
-
-For detailed guides, visit the [Documentation Site](https://autopilot-docs.vercel.app).
-If you encounter bugs, please [File an Issue](https://github.com/PraiseTechzw/autopilot-cli/issues).
-
----
-
 ## 🔧 Troubleshooting
 
 If you encounter issues, run the `doctor` command:
@@ -235,23 +202,32 @@ This will check for:
 - Node.js version
 - Permissions
 - **Common Issue**: If commits aren't triggering, check if you are editing ignored files (e.g. `.vscode`, `node_modules`).
+- **Autopilot detects changes but never commits**: This can happen if files are constantly changing (resetting the debounce timer) or if you are on a blocked branch. Check `autopilot.log` for details.
 
 For more details, visit our [Documentation Site](https://autopilot-cli.vercel.app/docs/troubleshooting).
 
 ---
 
-## 🤝 Contributing
+## 🧪 Verification (Smoke Test)
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+To verify that Autopilot is working correctly on your machine or in a CI environment, you can run the built-in verification suite. This runs the linter, the doctor diagnostic tool, and the full test suite.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+```bash
+# Run the full verification suite
+npm run verify
+```
+
+If everything is green, you are good to go!
 
 ---
 
-## 📜 License
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+Feel free to check the [issues page](https://github.com/PraiseTechzw/autopilot-cli/issues).
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
