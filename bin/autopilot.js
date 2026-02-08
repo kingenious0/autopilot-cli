@@ -12,6 +12,7 @@ const { insights } = require('../src/commands/insights');
 const { leaderboard } = require('../src/commands/leaderboard');
 const doctor = require('../src/commands/doctor');
 const presetCommand = require('../src/commands/preset');
+const configCommand = require('../src/commands/config');
 const pkg = require('../package.json');
 const logger = require('../src/utils/logger');
 const { checkForUpdate } = require('../src/utils/update-check');
@@ -28,7 +29,8 @@ const commands = {
   insights: insights,
   leaderboard: leaderboard,
   doctor: doctor,
-  preset: presetCommand
+  preset: presetCommand,
+  config: configCommand
 };
 
 // Runtime assertion to prevent wiring errors
