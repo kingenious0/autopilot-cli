@@ -1,6 +1,6 @@
 {
   "name": "@traisetech/autopilot",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -12,7 +12,7 @@
     "LICENSE",
     "CHANGELOG.md"
   ],
-  "description": "An intelligent CLI tool that automatically commits and pushes your code so you can focus on building.",
+  "description": "An intelligent Git automation CLI that safely commits and pushes your code so you can focus on building.",
   "keywords": [
     "git",
     "automation",
@@ -64,6 +64,7 @@
     "ink-spinner": "^5.0.0",
     "open": "^11.0.0",
     "prop-types": "^15.8.1",
-    "react": "^19.2.4"
+    "react": "^19.2.4",
+    "uuid": "^13.0.0"
   }
 }

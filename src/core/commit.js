@@ -5,8 +5,8 @@
 
 const path = require('path');
 const logger = require('../utils/logger');
-const { generateAICommitMessage } = require('./gemini');
-const { generateGrokCommitMessage } = require('./grok');
+const gemini = require('./gemini');
+const grok = require('./grok');
 const HistoryManager = require('./history');
 
 /**
@@ -28,11 +28,11 @@ async function generateCommitMessage(files, diffContent, config = {}) {
       
       if (provider === 'grok') {
         if (!config.ai.grokApiKey) throw new Error('Grok API Key not configured');
-        message = await generateGrokCommitMessage(diffContent, config.ai.grokApiKey, config.ai.grokModel);
+        message = await grok.generateGrokCommitMessage(diffContent, config.ai.grokApiKey, config.ai.grokModel);
       } else {
         // Default to Gemini
         if (!config.ai.apiKey) throw new Error('Gemini API Key not configured');
-        message = await generateAICommitMessage(diffContent, config.ai.apiKey, config.ai.model);
+        message = await gemini.generateAICommitMessage(diffContent, config.ai.apiKey, config.ai.model);
       }
     } catch (error) {
       logger.warn(`AI generation failed (${error.message}), falling back to smart generation.`);
@@ -350,7 +350,32 @@ function generateBody(analysis, files) {
   return bullets;
 }
 
+async function addTrailers(message) {
+  const { getIdentity } = require('../utils/identity');
+  const { generateSignature } = require('../utils/crypto');
+  const { version } = require('../../package.json');
+
+  const identity = await getIdentity();
+  const timestamp = Date.now().toString();
+  
+  // Content to sign: message|timestamp|version|userId
+  // This ensures integrity of the whole commit data
+  const contentToSign = `${message}|${timestamp}|${version}|${identity.id}`;
+  const signature = generateSignature(contentToSign, identity.id);
+
+  const trailers = [
+    '',
+    'Autopilot-Commit: true',
+    `Autopilot-Version: ${version}`,
+    `Autopilot-User: ${identity.id}`,
+    `Autopilot-Signature: ${signature}`
+  ];
+
+  return message + trailers.join('\n');
+}
+
 module.exports = {
   generateCommitMessage,
-  parseDiff
+  parseDiff,
+  addTrailers
 };

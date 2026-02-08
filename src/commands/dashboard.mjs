@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { render, Box, Text, useInput, useApp } from 'ink';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
@@ -10,6 +10,7 @@ import git from '../core/git.js';
 import HistoryManager from '../core/history.js';
 import processUtils from '../utils/process.js';
 
+const { useState, useEffect } = React;
 const { getRunningPid } = processUtils;
 
 const e = React.createElement;
@@ -124,11 +125,13 @@ const Dashboard = () => {
     // Pending Changes
     e(Box, { flexDirection: "column", marginBottom: 1 },
       e(Text, { underline: true }, `Pending Changes (${pendingFiles.length})`),
-      pendingFiles.length === 0 ? 
-        e(Text, { color: "gray" }, "No pending changes") :
-        pendingFiles.slice(0, 5).map((f, i) => 
-          e(Text, { key: i, color: "yellow" }, ` ${f.status} ${f.file}`)
-        ),
+      e(Box, { flexDirection: "column" },
+        pendingFiles.length === 0 ? 
+          e(Text, { color: "gray" }, "No pending changes") :
+          pendingFiles.slice(0, 5).map((f) => 
+            e(Text, { key: f.file, color: "yellow" }, ` ${f.status} ${f.file}`)
+          )
+      ),
       pendingFiles.length > 5 && e(Text, { color: "gray" }, ` ...and ${pendingFiles.length - 5} more`)
     ),
 

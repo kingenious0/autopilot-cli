@@ -7,47 +7,87 @@ const { createObjectCsvWriter } = require('csv-writer');
 async function getGitStats(repoPath) {
   try {
     // Get commit log with stats
-    // Format: hash|author|date|subject|body
+    // We use custom delimiters to safely parse multi-line bodies and stats
     const { stdout } = await git.runGit(repoPath, [
       'log',
-      '--pretty=format:%H|%an|%ad|%s',
+      '--pretty=format:====COMMIT====%n%H|%an|%ad|%s|%b%n====BODY_END====',
       '--date=iso',
       '--numstat'
     ]);
 
-    const lines = stdout.split('\n');
     const commits = [];
-    let currentCommit = null;
+    const rawCommits = stdout.split('====COMMIT====');
 
-    // Parse git log output
-    for (const line of lines) {
-      if (!line.trim()) continue;
+    for (const raw of rawCommits) {
+      if (!raw.trim()) continue;
 
-      // Check if line is a commit header (hash|author|date|subject)
-      // Hashes are 40 chars hex.
-      const parts = line.split('|');
-      if (parts.length >= 4 && /^[0-9a-f]{40}$/.test(parts[0])) {
-        if (currentCommit) commits.push(currentCommit);
-        currentCommit = {
-          hash: parts[0],
-          author: parts[1],
-          date: new Date(parts[2]),
-          message: parts.slice(3).join('|'),
-          files: [],
-          additions: 0,
-          deletions: 0
-        };
-      } else if (currentCommit && /^\d+\s+\d+\s+/.test(line)) {
-        // Stat line: "10  5   src/file.js"
-        const [add, del, file] = line.split(/\s+/);
-        const additions = parseInt(add) || 0;
-        const deletions = parseInt(del) || 0;
-        currentCommit.files.push({ file, additions, deletions });
-        currentCommit.additions += additions;
-        currentCommit.deletions += deletions;
+      const [metadataPart, statsPart] = raw.split('====BODY_END====');
+      if (!metadataPart) continue;
+
+      const lines = metadataPart.trim().split('\n');
+      const header = lines[0]; // hash|author|date|subject|body_start...
+      // The body might continue on next lines if %b has newlines.
+      // Actually, my format puts %b starting on the first line.
+      // But let's be safer: split header by | first 4 times only.
+      
+      // header format: hash|author|date|subject|rest...
+      // But wait, if body has newlines, "lines" array has them.
+      
+      // Let's reconstruct the full message body
+      const fullMetadata = metadataPart.trim();
+      const firstPipe = fullMetadata.indexOf('|');
+      const secondPipe = fullMetadata.indexOf('|', firstPipe + 1);
+      const thirdPipe = fullMetadata.indexOf('|', secondPipe + 1);
+      const fourthPipe = fullMetadata.indexOf('|', thirdPipe + 1);
+      
+      if (firstPipe === -1 || fourthPipe === -1) continue;
+
+      const hash = fullMetadata.substring(0, firstPipe);
+      const author = fullMetadata.substring(firstPipe + 1, secondPipe);
+      const dateStr = fullMetadata.substring(secondPipe + 1, thirdPipe);
+      const subject = fullMetadata.substring(thirdPipe + 1, fourthPipe);
+      const body = fullMetadata.substring(fourthPipe + 1);
+
+      // TRUST VERIFICATION
+      // Check for Autopilot trailers
+      if (!body.includes('Autopilot-Commit: true')) {
+        continue; // Skip non-autopilot commits
       }
+
+      // TODO: Verify Signature (Optional but recommended for strict mode)
+      // const signature = extractTrailer(body, 'Autopilot-Signature');
+      // if (!verifySignature(signature, ...)) continue;
+
+      const commit = {
+        hash,
+        author,
+        date: new Date(dateStr),
+        message: subject + '\n' + body,
+        files: [],
+        additions: 0,
+        deletions: 0
+      };
+
+      // Parse Stats
+      if (statsPart) {
+        const statLines = statsPart.trim().split('\n');
+        for (const statLine of statLines) {
+          if (!statLine.trim()) continue;
+          const parts = statLine.split(/\s+/);
+          if (parts.length >= 3) {
+            const additions = parseInt(parts[0]) || 0;
+            const deletions = parseInt(parts[1]) || 0;
+            const file = parts.slice(2).join(' '); // handle spaces in filenames
+            
+            commit.files.push({ file, additions, deletions });
+            commit.additions += additions;
+            commit.deletions += deletions;
+          }
+        }
+      }
+
+      commits.push(commit);
     }
-    if (currentCommit) commits.push(currentCommit);
 
     return commits;
   } catch (error) {
