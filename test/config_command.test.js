@@ -26,7 +26,7 @@ test('Config Command', async (t) => {
     await configCommand('set', 'ai.provider', 'grok');
     
     // Verify file content
-    const configPath = path.join(tmpDir, '.autopilotrc');
+    const configPath = path.join(tmpDir, '.autopilotrc.json');
     const savedConfig = await fs.readJson(configPath);
     assert.strictEqual(savedConfig.ai.provider, 'grok');
     
@@ -38,31 +38,31 @@ test('Config Command', async (t) => {
   await t.test('should handle boolean values', async () => {
     await configCommand('set', 'autoPush', 'false');
     
-    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc'));
+    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc.json'));
     assert.strictEqual(savedConfig.autoPush, false);
   });
 
   await t.test('should handle number values', async () => {
     await configCommand('set', 'debounceSeconds', '10');
     
-    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc'));
+    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc.json'));
     assert.strictEqual(savedConfig.debounceSeconds, 10);
   });
 
   await t.test('should create nested objects if needed', async () => {
     await configCommand('set', 'new.nested.key', 'value');
     
-    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc'));
+    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc.json'));
     assert.strictEqual(savedConfig.new.nested.key, 'value');
   });
 
   await t.test('should not overwrite existing other keys', async () => {
     // Setup initial config
-    await fs.writeJson(path.join(tmpDir, '.autopilotrc'), { existing: 'data' });
+    await fs.writeJson(path.join(tmpDir, '.autopilotrc.json'), { existing: 'data' });
     
     await configCommand('set', 'newKey', 'newValue');
     
-    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc'));
+    const savedConfig = await fs.readJson(path.join(tmpDir, '.autopilotrc.json'));
     assert.strictEqual(savedConfig.existing, 'data');
     assert.strictEqual(savedConfig.newKey, 'newValue');
   });
