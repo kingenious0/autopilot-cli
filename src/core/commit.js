@@ -350,7 +350,32 @@ function generateBody(analysis, files) {
   return bullets;
 }
 
+async function addTrailers(message) {
+  const { getIdentity } = require('../utils/identity');
+  const { generateSignature } = require('../utils/crypto');
+  const { version } = require('../../package.json');
+
+  const identity = await getIdentity();
+  const timestamp = Date.now().toString();
+  
+  // Content to sign: message|timestamp|version|userId
+  // This ensures integrity of the whole commit data
+  const contentToSign = `${message}|${timestamp}|${version}|${identity.id}`;
+  const signature = generateSignature(contentToSign, identity.id);
+
+  const trailers = [
+    '',
+    'Autopilot-Commit: true',
+    `Autopilot-Version: ${version}`,
+    `Autopilot-User: ${identity.id}`,
+    `Autopilot-Signature: ${signature}`
+  ];
+
+  return message + trailers.join('\n');
+}
+
 module.exports = {
   generateCommitMessage,
-  parseDiff
+  parseDiff,
+  addTrailers
 };

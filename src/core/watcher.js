@@ -10,7 +10,10 @@ const readline = require('readline');
 const logger = require('../utils/logger');
 const git = require('./git');
 const FocusEngine = require('./focus');
-const { generateCommitMessage } = require('./commit');
+const { generateCommitMessage, addTrailers } = require('./commit');
+const eventSystem = require('./events');
+const { getIdentity } = require('../utils/identity');
+const { version } = require('../../package.json');
 const { savePid, removePid, registerProcessHandlers } = require('../utils/process');
 const { loadConfig } = require('../config/loader');
 const { readIgnoreFile, createIgnoredFilter, normalizePath } = require('../config/ignore');
@@ -356,6 +359,9 @@ class Watcher {
         message = approval.message;
       }
 
+      // Add Trust/Attribution Trailers
+      message = await addTrailers(message);
+
       const commitResult = await git.commit(this.repoPath, message);
       
       if (commitResult.ok) {
@@ -397,6 +403,22 @@ class Watcher {
              logger.info('Run "autopilot resume" to restart after fixing the issue.');
         } else {
              logger.success('Push complete');
+             
+             // Emit Event for Leaderboard/Telemetry
+             try {
+               const identity = await getIdentity();
+               const latestHash = await git.getLatestCommitHash(this.repoPath);
+               
+               await eventSystem.emit({
+                 type: 'push_success',
+                 userId: identity.id,
+                 commitHash: latestHash,
+                 timestamp: Date.now(),
+                 version: version
+               });
+             } catch (err) {
+               logger.debug(`Failed to emit push event: ${err.message}`);
+             }
         }
       }
 

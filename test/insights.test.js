@@ -32,7 +32,7 @@ describe('Insights Command', () => {
         if (args.includes('log')) {
             return Promise.resolve({ 
                 ok: true,
-                stdout: 'e5b7e2d6f5c8a9b0c1d2e3f4a5b6c7d8e9f0a1b2|author|2023-01-01|feat: test\n1\t1\tfile.js',
+                stdout: '====COMMIT====\ne5b7e2d6f5c8a9b0c1d2e3f4a5b6c7d8e9f0a1b2|author|2023-01-01T12:00:00.000Z|feat: test|Body content\nAutopilot-Commit: true\n====BODY_END====\n1\t1\tfile.js',
                 stderr: ''
             });
         }
@@ -49,7 +49,7 @@ describe('Insights Command', () => {
         if (args.includes('log')) {
             return Promise.resolve({ 
                 ok: true,
-                stdout: 'e5b7e2d6f5c8a9b0c1d2e3f4a5b6c7d8e9f0a1b2|author|2023-01-01|feat: test\n1\t1\tfile.js',
+                stdout: '====COMMIT====\ne5b7e2d6f5c8a9b0c1d2e3f4a5b6c7d8e9f0a1b2|author|2023-01-01T12:00:00.000Z|feat: test|Body content\nAutopilot-Commit: true\n====BODY_END====\n1\t1\tfile.js',
                 stderr: ''
             });
         }
