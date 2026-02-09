@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const { getConfigDir } = require('./paths');
 const logger = require('./logger');
 
@@ -20,7 +20,7 @@ async function getIdentity() {
 
     // Create new identity
     const identity = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       created: Date.now()
     };
 
@@ -32,7 +32,7 @@ async function getIdentity() {
   } catch (error) {
     logger.error(`Failed to manage identity: ${error.message}`);
     // Fallback to memory-only ID if filesystem fails
-    return { id: uuidv4(), created: Date.now() };
+    return { id: crypto.randomUUID(), created: Date.now() };
   }
 }
 
